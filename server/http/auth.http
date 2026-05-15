@@ -1,0 +1,212 @@
+### LMS Authentication Flow Tests
+### Works with IntelliJ HTTP Client or VS Code REST Client.
+### Make sure your app is running on localhost:8080.
+###
+### Notes:
+### - These tests assume your auth controller uses: /api/auth
+### - The login endpoint should create a session cookie, usually JSESSIONID.
+### - IntelliJ HTTP Client and VS Code REST Client usually keep cookies between requests
+###   for the same host, so logout can use the session created by login.
+### - If you re-run duplicate tests with fixed emails, old database rows may make
+###   the first request fail too. Change the email variables if needed.
+
+@host = http://localhost:8080
+
+@studentEmail = student-auth-flow@example.com
+@teacherEmail = teacher-auth-flow@example.com
+@duplicateEmail = duplicate-auth-flow@example.com
+@studentPassword = Password123!
+@teacherPassword = Password123!
+@wrongPassword = WrongPassword123!
+
+### -------------------------------------------------------------------------
+### 1. Register a new student
+### Expected:
+### - 200 OK
+### - Response should include id, firstName, lastName, email, accountStatus, roles
+### - Response should NOT include passwordHash
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "Student",
+  "lastName": "AuthFlow",
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+
+### -------------------------------------------------------------------------
+### 2. Register a new teacher
+### Expected:
+### - 200 OK
+### - roles should include TEACHER
+### Warning:
+### - Public teacher registration is okay for testing, but should probably become
+###   invite-only or admin-approved later.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "Teacher",
+  "lastName": "AuthFlow",
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+
+### -------------------------------------------------------------------------
+### 3. Duplicate email setup
+### First request should succeed unless this email already exists in your DB.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "Duplicate",
+  "lastName": "One",
+  "email": "{{duplicateEmail}}",
+  "password": "Password123!"
+}
+
+
+### -------------------------------------------------------------------------
+### 4. Duplicate email attempt
+### Expected:
+### - 400 Bad Request
+### - Response should include: Email is already in use.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "Duplicate",
+  "lastName": "Two",
+  "email": "{{duplicateEmail}}",
+  "password": "Password123!"
+}
+
+
+### -------------------------------------------------------------------------
+### 5. Register with invalid email
+### Expected:
+### - 400 Bad Request
+### - Response should include email validation message.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "Invalid",
+  "lastName": "Email",
+  "email": "not-an-email",
+  "password": "Password123!"
+}
+
+
+### -------------------------------------------------------------------------
+### 6. Register with short password
+### Expected:
+### - 400 Bad Request
+### - Response should include password validation message.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "Short",
+  "lastName": "Password",
+  "email": "short-password-auth-flow@example.com",
+  "password": "123"
+}
+
+
+### -------------------------------------------------------------------------
+### 7. Login with wrong password
+### Expected:
+### - 401 Unauthorized
+### - Response should include: Invalid email or password.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{wrongPassword}}"
+}
+
+
+### -------------------------------------------------------------------------
+### 8. Login with student credentials
+### Expected:
+### - 200 OK
+### - Response should be UserResponse
+### - Response should NOT include passwordHash
+### - Response headers should include Set-Cookie: JSESSIONID=...
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+
+### -------------------------------------------------------------------------
+### 9. Login with teacher credentials
+### Expected:
+### - 200 OK
+### - roles should include TEACHER
+### - This may replace the previous session cookie depending on your REST client.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+
+### -------------------------------------------------------------------------
+### 10. Logout
+### Expected:
+### - Usually 200, 204, or 302 depending on your Spring Security logout config.
+### - Should invalidate the current session and delete/expire JSESSIONID.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/logout
+
+
+### -------------------------------------------------------------------------
+### 11. Login after logout to confirm credentials still work
+### Expected:
+### - 200 OK
+### - New session cookie.
+### -------------------------------------------------------------------------
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+
+### -------------------------------------------------------------------------
+### Optional protected endpoint test
+### -------------------------------------------------------------------------
+### Use this after you create a protected endpoint, for example:
+###
+### @protectedUrl = {{host}}/api/courses
+###
+### GET {{protectedUrl}}
+###
+### Expected before login:
+### - 401 Unauthorized
+###
+### Expected after login:
+### - 200 OK, 403 Forbidden, or app-specific response depending on user role.
+### -------------------------------------------------------------------------
