@@ -1,0 +1,139 @@
+@baseUrl = http://localhost:8080
+
+@teacherEmail = student.flow.teacher@test.com
+@teacherPassword = Password123!
+
+@studentEmail = student.flow.student@test.com
+@studentPassword = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "StudentFlow",
+  "lastName": "Teacher",
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Teacher creates course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Student Enrollment Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for student enrollment testing."
+}
+
+> {%
+    client.global.set("studentFlowCourseId", response.body.id);
+    client.global.set("studentFlowJoinCode", response.body.joinCode);
+%}
+
+### Teacher publishes course
+# Students can only join ACTIVE courses.
+PUT {{baseUrl}}/api/courses/{{studentFlowCourseId}}/publish
+
+### Teacher confirms course is active
+GET {{baseUrl}}/api/courses/{{studentFlowCourseId}}
+
+### Teacher logout
+POST {{baseUrl}}/api/auth/logout
+
+### Register student
+# If this says "Email is already in use.", skip to Login student.
+POST {{baseUrl}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "StudentFlow",
+  "lastName": "Student",
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Login student
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Student joins course by join code
+POST {{baseUrl}}/api/student/courses/join
+Content-Type: application/json
+
+{
+  "joinCode": "{{studentFlowJoinCode}}"
+}
+
+### Student gets enrollments
+GET {{baseUrl}}/api/student/enrollments
+
+### Student gets active courses
+GET {{baseUrl}}/api/student/courses
+
+### Student completes course
+PUT {{baseUrl}}/api/student/courses/{{studentFlowCourseId}}/complete
+
+### Confirm enrollment is completed
+GET {{baseUrl}}/api/student/enrollments
+
+### Student rejoins completed course
+# This should reactivate the enrollment as ACTIVE.
+POST {{baseUrl}}/api/student/courses/join
+Content-Type: application/json
+
+{
+  "joinCode": "{{studentFlowJoinCode}}"
+}
+
+### Confirm enrollment is active again
+GET {{baseUrl}}/api/student/enrollments
+
+### Student drops course
+PUT {{baseUrl}}/api/student/courses/{{studentFlowCourseId}}/drop
+
+### Confirm enrollment is dropped
+GET {{baseUrl}}/api/student/enrollments
+
+### Student tries to join bad join code
+POST {{baseUrl}}/api/student/courses/join
+Content-Type: application/json
+
+{
+  "joinCode": "BADCODE"
+}
+
+### Student logout
+POST {{baseUrl}}/api/auth/logout
+
+### Login teacher again for cleanup
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{studentFlowCourseId}}
+
+### Teacher logout again
+POST {{baseUrl}}/api/auth/logout
