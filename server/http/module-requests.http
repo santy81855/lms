@@ -1,0 +1,107 @@
+@baseUrl = http://localhost:8080
+@email = module.teacher@test.com
+@password = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "Module",
+  "lastName": "Teacher",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Create prerequisite course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Module Controller Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for module endpoint testing."
+}
+
+> {%
+    client.global.set("moduleTestCourseId", response.body.id);
+%}
+
+### Create first module
+POST {{baseUrl}}/api/courses/{{moduleTestCourseId}}/modules
+Content-Type: application/json
+
+{
+  "title": "Module 1: Cells",
+  "description": "Introduction to cells"
+}
+
+> {%
+    client.global.set("moduleTestModuleId", response.body.id);
+%}
+
+### Create second module
+POST {{baseUrl}}/api/courses/{{moduleTestCourseId}}/modules
+Content-Type: application/json
+
+{
+  "title": "Module 2: Genetics",
+  "description": "Introduction to genetics"
+}
+
+> {%
+    client.global.set("moduleTestSecondModuleId", response.body.id);
+%}
+
+### Get modules for course
+GET {{baseUrl}}/api/courses/{{moduleTestCourseId}}/modules
+
+### Get first module by id
+GET {{baseUrl}}/api/modules/{{moduleTestModuleId}}
+
+### Update first module
+PUT {{baseUrl}}/api/modules/{{moduleTestModuleId}}
+Content-Type: application/json
+
+{
+  "title": "Module 1: Cells Updated",
+  "description": "Updated intro to cells"
+}
+
+### Move second module to first position
+PUT {{baseUrl}}/api/modules/{{moduleTestSecondModuleId}}/move?moduleOrder=1
+
+### Confirm module order changed
+GET {{baseUrl}}/api/courses/{{moduleTestCourseId}}/modules
+
+### Publish first module
+PUT {{baseUrl}}/api/modules/{{moduleTestModuleId}}/publish
+
+### Return first module to draft
+PUT {{baseUrl}}/api/modules/{{moduleTestModuleId}}/draft
+
+### Archive first module
+PUT {{baseUrl}}/api/modules/{{moduleTestModuleId}}/archive
+
+### Delete first module
+DELETE {{baseUrl}}/api/modules/{{moduleTestModuleId}}
+
+### Confirm remaining modules
+GET {{baseUrl}}/api/courses/{{moduleTestCourseId}}/modules
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{moduleTestCourseId}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout

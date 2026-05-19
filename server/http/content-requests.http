@@ -1,0 +1,187 @@
+@baseUrl = http://localhost:8080
+@email = content.teacher@test.com
+@password = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "Content",
+  "lastName": "Teacher",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Create prerequisite course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Content Controller Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for content endpoint testing."
+}
+
+> {%
+    client.global.set("contentTestCourseId", response.body.id);
+%}
+
+### Create prerequisite module
+POST {{baseUrl}}/api/courses/{{contentTestCourseId}}/modules
+Content-Type: application/json
+
+{
+  "title": "Module 1: Biology Content",
+  "description": "Temporary module used for lesson, assignment, and quiz testing."
+}
+
+> {%
+    client.global.set("contentTestModuleId", response.body.id);
+%}
+
+### Create lesson
+POST {{baseUrl}}/api/modules/{{contentTestModuleId}}/lessons
+Content-Type: application/json
+
+{
+  "title": "Lesson 1: What is a cell?",
+  "content": "Cells are the basic unit of life.",
+  "estimatedMinutes": 15
+}
+
+> {%
+    client.global.set("contentTestLessonId", response.body.id);
+%}
+
+### Create assignment
+POST {{baseUrl}}/api/modules/{{contentTestModuleId}}/assignments
+Content-Type: application/json
+
+{
+  "title": "Assignment 1: Cell Reflection",
+  "instructions": "Write a short reflection about what cells do.",
+  "maxPoints": 100.00,
+  "submissionType": "TEXT"
+}
+
+> {%
+    client.global.set("contentTestAssignmentId", response.body.id);
+%}
+
+### Create quiz
+POST {{baseUrl}}/api/modules/{{contentTestModuleId}}/quizzes
+Content-Type: application/json
+
+{
+  "title": "Quiz 1: Cell Basics",
+  "description": "A short quiz about cells.",
+  "maxPoints": 10.00,
+  "timeLimitMinutes": 20,
+  "attemptsAllowed": 1
+}
+
+> {%
+    client.global.set("contentTestQuizId", response.body.id);
+%}
+
+### Get mixed module content
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/content
+
+### Get lessons for module
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/lessons
+
+### Get assignments for module
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/assignments
+
+### Get quizzes for module
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/quizzes
+
+### Update lesson
+PUT {{baseUrl}}/api/lessons/{{contentTestLessonId}}
+Content-Type: application/json
+
+{
+  "title": "Lesson 1: What is a cell? Updated",
+  "content": "Updated lesson content about cells.",
+  "estimatedMinutes": 20
+}
+
+### Update assignment
+PUT {{baseUrl}}/api/assignments/{{contentTestAssignmentId}}
+Content-Type: application/json
+
+{
+  "title": "Assignment 1: Cell Reflection Updated",
+  "instructions": "Write an updated short reflection about cells.",
+  "maxPoints": 100.00,
+  "submissionType": "TEXT"
+}
+
+### Update quiz
+PUT {{baseUrl}}/api/quizzes/{{contentTestQuizId}}
+Content-Type: application/json
+
+{
+  "title": "Quiz 1: Cell Basics Updated",
+  "description": "Updated quiz description.",
+  "maxPoints": 10.00,
+  "timeLimitMinutes": 25,
+  "attemptsAllowed": 2
+}
+
+### Move quiz to first position in mixed content
+PUT {{baseUrl}}/api/quizzes/{{contentTestQuizId}}/move?quizOrder=1
+
+### Confirm mixed content order changed
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/content
+
+### Publish lesson
+PUT {{baseUrl}}/api/lessons/{{contentTestLessonId}}/publish
+
+### Publish assignment
+PUT {{baseUrl}}/api/assignments/{{contentTestAssignmentId}}/publish
+
+### Publish quiz
+PUT {{baseUrl}}/api/quizzes/{{contentTestQuizId}}/publish
+
+### Confirm published content
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/content
+
+### Return lesson to draft
+PUT {{baseUrl}}/api/lessons/{{contentTestLessonId}}/draft
+
+### Archive assignment
+PUT {{baseUrl}}/api/assignments/{{contentTestAssignmentId}}/archive
+
+### Archive quiz
+PUT {{baseUrl}}/api/quizzes/{{contentTestQuizId}}/archive
+
+### Delete lesson
+DELETE {{baseUrl}}/api/lessons/{{contentTestLessonId}}
+
+### Delete assignment
+DELETE {{baseUrl}}/api/assignments/{{contentTestAssignmentId}}
+
+### Delete quiz
+DELETE {{baseUrl}}/api/quizzes/{{contentTestQuizId}}
+
+### Confirm module content is empty
+GET {{baseUrl}}/api/modules/{{contentTestModuleId}}/content
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{contentTestCourseId}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
