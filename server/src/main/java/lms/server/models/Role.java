@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Role {
     private Long id;
-    @NotBlank(message="Name is required.")
+    @NotNull(message="Name is required.")
     private RoleName name;
     @NotBlank(message="Description is required.")
     private String description;
