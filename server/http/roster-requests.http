@@ -1,0 +1,136 @@
+@baseUrl = http://localhost:8080
+
+@teacherEmail = roster.teacher@test.com
+@teacherPassword = Password123!
+
+@studentEmail = roster.student@test.com
+@studentPassword = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "Roster",
+  "lastName": "Teacher",
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Teacher creates course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Roster Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for roster endpoint testing."
+}
+
+> {%
+    client.global.set("rosterCourseId", response.body.id);
+    client.global.set("rosterJoinCode", response.body.joinCode);
+%}
+
+### Teacher publishes course
+PUT {{baseUrl}}/api/courses/{{rosterCourseId}}/publish
+
+### Teacher checks roster before students join
+GET {{baseUrl}}/api/courses/{{rosterCourseId}}/students
+
+### Teacher logout
+POST {{baseUrl}}/api/auth/logout
+
+### Register student
+# If this says "Email is already in use.", skip to Login student.
+POST {{baseUrl}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "Roster",
+  "lastName": "Student",
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Login student
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Student joins course
+POST {{baseUrl}}/api/student/courses/join
+Content-Type: application/json
+
+{
+  "joinCode": "{{rosterJoinCode}}"
+}
+
+### Student confirms enrollment
+GET {{baseUrl}}/api/student/enrollments
+
+### Student logout
+POST {{baseUrl}}/api/auth/logout
+
+### Login teacher again
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Teacher checks roster after student joins
+GET {{baseUrl}}/api/courses/{{rosterCourseId}}/students
+
+### Teacher logout again
+POST {{baseUrl}}/api/auth/logout
+
+### Login student again
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Student completes course
+PUT {{baseUrl}}/api/student/courses/{{rosterCourseId}}/complete
+
+### Student logout again
+POST {{baseUrl}}/api/auth/logout
+
+### Login teacher for completed roster check
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Teacher checks roster after student completes
+GET {{baseUrl}}/api/courses/{{rosterCourseId}}/students
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{rosterCourseId}}
+
+### Teacher logout final
+POST {{baseUrl}}/api/auth/logout

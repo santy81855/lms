@@ -1,0 +1,193 @@
+@baseUrl = http://localhost:8080
+@email = quiz.authoring.teacher@test.com
+@password = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "Quiz",
+  "lastName": "Teacher",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Create prerequisite course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Quiz Authoring Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for quiz authoring endpoint testing."
+}
+
+> {%
+    client.global.set("quizAuthoringCourseId", response.body.id);
+%}
+
+### Create prerequisite module
+POST {{baseUrl}}/api/courses/{{quizAuthoringCourseId}}/modules
+Content-Type: application/json
+
+{
+  "title": "Module 1: Quiz Authoring",
+  "description": "Temporary module used for quiz question and option testing."
+}
+
+> {%
+    client.global.set("quizAuthoringModuleId", response.body.id);
+%}
+
+### Create prerequisite quiz
+POST {{baseUrl}}/api/modules/{{quizAuthoringModuleId}}/quizzes
+Content-Type: application/json
+
+{
+  "title": "Cell Basics Quiz",
+  "description": "A temporary quiz for question and option testing.",
+  "maxPoints": 10.00,
+  "timeLimitMinutes": 20,
+  "attemptsAllowed": 1
+}
+
+> {%
+    client.global.set("quizAuthoringQuizId", response.body.id);
+%}
+
+### Create first question
+POST {{baseUrl}}/api/quizzes/{{quizAuthoringQuizId}}/questions
+Content-Type: application/json
+
+{
+  "questionText": "What is the basic unit of life?",
+  "questionType": "MULTIPLE_CHOICE",
+  "points": 1.00,
+  "explanation": "Cells are considered the basic unit of life."
+}
+
+> {%
+    client.global.set("quizAuthoringQuestionId", response.body.id);
+%}
+
+### Create second question
+POST {{baseUrl}}/api/quizzes/{{quizAuthoringQuizId}}/questions
+Content-Type: application/json
+
+{
+  "questionText": "True or false: All living things are made of cells.",
+  "questionType": "TRUE_FALSE",
+  "points": 1.00,
+  "explanation": "Living things are made of one or more cells."
+}
+
+> {%
+    client.global.set("quizAuthoringSecondQuestionId", response.body.id);
+%}
+
+### Get questions for quiz
+GET {{baseUrl}}/api/quizzes/{{quizAuthoringQuizId}}/questions
+
+### Update first question
+PUT {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}
+Content-Type: application/json
+
+{
+  "questionText": "What is the basic unit of life? Updated",
+  "questionType": "MULTIPLE_CHOICE",
+  "points": 2.00,
+  "explanation": "The cell is the basic unit of life."
+}
+
+### Move second question to first position
+PUT {{baseUrl}}/api/questions/{{quizAuthoringSecondQuestionId}}/move?questionOrder=1
+
+### Confirm question order changed
+GET {{baseUrl}}/api/quizzes/{{quizAuthoringQuizId}}/questions
+
+### Create first answer option
+POST {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "Cell",
+  "correct": true
+}
+
+> {%
+    client.global.set("quizAuthoringOptionId", response.body.id);
+%}
+
+### Create second answer option
+POST {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "Atom",
+  "correct": false
+}
+
+> {%
+    client.global.set("quizAuthoringSecondOptionId", response.body.id);
+%}
+
+### Create third answer option
+POST {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "Organ",
+  "correct": false
+}
+
+> {%
+    client.global.set("quizAuthoringThirdOptionId", response.body.id);
+%}
+
+### Get answer options for question
+GET {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}/options
+
+### Update second answer option
+PUT {{baseUrl}}/api/options/{{quizAuthoringSecondOptionId}}
+Content-Type: application/json
+
+{
+  "optionText": "Atom Updated",
+  "correct": false
+}
+
+### Move third answer option to first position
+PUT {{baseUrl}}/api/options/{{quizAuthoringThirdOptionId}}/move?optionOrder=1
+
+### Confirm option order changed
+GET {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}/options
+
+### Delete second answer option
+DELETE {{baseUrl}}/api/options/{{quizAuthoringSecondOptionId}}
+
+### Confirm option deleted
+GET {{baseUrl}}/api/questions/{{quizAuthoringQuestionId}}/options
+
+### Delete second question
+DELETE {{baseUrl}}/api/questions/{{quizAuthoringSecondQuestionId}}
+
+### Confirm question deleted
+GET {{baseUrl}}/api/quizzes/{{quizAuthoringQuizId}}/questions
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{quizAuthoringCourseId}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout

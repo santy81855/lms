@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:8080
+@courseId = 1
+
+### Register teacher
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "Teacher",
+  "email": "teacher@test.com",
+  "password": "Password123!"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "teacher@test.com",
+  "password": "Password123!"
+}
+
+### Create course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Intro to Biology",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "A beginner biology course."
+}
+
+### Get teacher courses
+GET {{baseUrl}}/api/courses/teacher
+
+### Get course by id
+GET {{baseUrl}}/api/courses/{{courseId}}
+
+### Update course
+PUT {{baseUrl}}/api/courses/{{courseId}}
+Content-Type: application/json
+
+{
+  "title": "Intro to Biology Updated",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Updated biology course description."
+}
+
+### Publish course
+PUT {{baseUrl}}/api/courses/{{courseId}}/publish
+
+### Return course to draft
+PUT {{baseUrl}}/api/courses/{{courseId}}/draft
+
+### Archive course
+PUT {{baseUrl}}/api/courses/{{courseId}}/archive
+
+### Delete course
+DELETE {{baseUrl}}/api/courses/{{courseId}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout

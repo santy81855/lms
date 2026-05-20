@@ -1,0 +1,263 @@
+@baseUrl = http://localhost:8080
+
+@teacherEmail = quiz.taking.teacher@test.com
+@teacherPassword = Password123!
+
+@studentEmail = quiz.taking.student@test.com
+@studentPassword = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "QuizTaking",
+  "lastName": "Teacher",
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Teacher creates course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Quiz Taking Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for quiz-taking testing."
+}
+
+> {%
+    client.global.set("quizTakingCourseId", response.body.id);
+    client.global.set("quizTakingJoinCode", response.body.joinCode);
+%}
+
+### Teacher publishes course
+PUT {{baseUrl}}/api/courses/{{quizTakingCourseId}}/publish
+
+### Teacher creates module
+POST {{baseUrl}}/api/courses/{{quizTakingCourseId}}/modules
+Content-Type: application/json
+
+{
+  "title": "Module 1: Cells",
+  "description": "Quiz-taking test module."
+}
+
+> {%
+    client.global.set("quizTakingModuleId", response.body.id);
+%}
+
+### Teacher publishes module
+PUT {{baseUrl}}/api/modules/{{quizTakingModuleId}}/publish
+
+### Teacher creates quiz
+POST {{baseUrl}}/api/modules/{{quizTakingModuleId}}/quizzes
+Content-Type: application/json
+
+{
+  "title": "Cell Basics Quiz",
+  "description": "Auto-graded MVP quiz.",
+  "maxPoints": 2.00,
+  "timeLimitMinutes": 20,
+  "attemptsAllowed": 1
+}
+
+> {%
+    client.global.set("quizTakingQuizId", response.body.id);
+%}
+
+### Teacher creates multiple choice question
+POST {{baseUrl}}/api/quizzes/{{quizTakingQuizId}}/questions
+Content-Type: application/json
+
+{
+  "questionText": "What is the basic unit of life?",
+  "questionType": "MULTIPLE_CHOICE",
+  "points": 1.00,
+  "explanation": "The cell is the basic unit of life."
+}
+
+> {%
+    client.global.set("quizTakingQuestionOneId", response.body.id);
+%}
+
+### Teacher creates correct option for question one
+POST {{baseUrl}}/api/questions/{{quizTakingQuestionOneId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "Cell",
+  "correct": true
+}
+
+> {%
+    client.global.set("quizTakingQuestionOneCorrectOptionId", response.body.id);
+%}
+
+### Teacher creates wrong option for question one
+POST {{baseUrl}}/api/questions/{{quizTakingQuestionOneId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "Atom",
+  "correct": false
+}
+
+> {%
+    client.global.set("quizTakingQuestionOneWrongOptionId", response.body.id);
+%}
+
+### Teacher creates true/false question
+POST {{baseUrl}}/api/quizzes/{{quizTakingQuizId}}/questions
+Content-Type: application/json
+
+{
+  "questionText": "True or false: All living things are made of cells.",
+  "questionType": "TRUE_FALSE",
+  "points": 1.00,
+  "explanation": "Living things are made of one or more cells."
+}
+
+> {%
+    client.global.set("quizTakingQuestionTwoId", response.body.id);
+%}
+
+### Teacher creates true option for question two
+POST {{baseUrl}}/api/questions/{{quizTakingQuestionTwoId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "True",
+  "correct": true
+}
+
+> {%
+    client.global.set("quizTakingQuestionTwoCorrectOptionId", response.body.id);
+%}
+
+### Teacher creates false option for question two
+POST {{baseUrl}}/api/questions/{{quizTakingQuestionTwoId}}/options
+Content-Type: application/json
+
+{
+  "optionText": "False",
+  "correct": false
+}
+
+> {%
+    client.global.set("quizTakingQuestionTwoWrongOptionId", response.body.id);
+%}
+
+### Teacher publishes quiz
+PUT {{baseUrl}}/api/quizzes/{{quizTakingQuizId}}/publish
+
+### Teacher confirms quiz questions
+GET {{baseUrl}}/api/quizzes/{{quizTakingQuizId}}/questions
+
+### Teacher logout
+POST {{baseUrl}}/api/auth/logout
+
+### Register student
+# If this says "Email is already in use.", skip to Login student.
+POST {{baseUrl}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "QuizTaking",
+  "lastName": "Student",
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Login student
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Student joins course
+POST {{baseUrl}}/api/student/courses/join
+Content-Type: application/json
+
+{
+  "joinCode": "{{quizTakingJoinCode}}"
+}
+
+### Student opens quiz safely
+# This should NOT expose the "correct" flag on options.
+GET {{baseUrl}}/api/student/quizzes/{{quizTakingQuizId}}/take
+
+### Student submits quiz with both answers correct
+POST {{baseUrl}}/api/student/quizzes/{{quizTakingQuizId}}/submit
+Content-Type: application/json
+
+{
+  "answers": [
+    {
+      "questionId": {{quizTakingQuestionOneId}},
+      "selectedOptionId": {{quizTakingQuestionOneCorrectOptionId}}
+    },
+    {
+      "questionId": {{quizTakingQuestionTwoId}},
+      "selectedOptionId": {{quizTakingQuestionTwoCorrectOptionId}}
+    }
+  ]
+}
+
+> {%
+    client.global.set("quizTakingSubmissionId", response.body.submissionId);
+%}
+
+### Student gets latest quiz result
+GET {{baseUrl}}/api/student/quizzes/{{quizTakingQuizId}}/latest-result
+
+### Student tries to submit again
+# This should fail because attemptsAllowed is 1.
+POST {{baseUrl}}/api/student/quizzes/{{quizTakingQuizId}}/submit
+Content-Type: application/json
+
+{
+  "answers": [
+    {
+      "questionId": {{quizTakingQuestionOneId}},
+      "selectedOptionId": {{quizTakingQuestionOneWrongOptionId}}
+    },
+    {
+      "questionId": {{quizTakingQuestionTwoId}},
+      "selectedOptionId": {{quizTakingQuestionTwoWrongOptionId}}
+    }
+  ]
+}
+
+### Student logout
+POST {{baseUrl}}/api/auth/logout
+
+### Login teacher again for cleanup
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{quizTakingCourseId}}
+
+### Teacher logout again
+POST {{baseUrl}}/api/auth/logout

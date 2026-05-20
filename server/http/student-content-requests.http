@@ -1,0 +1,191 @@
+@baseUrl = http://localhost:8080
+
+@teacherEmail = student.content.teacher@test.com
+@teacherPassword = Password123!
+
+@studentEmail = student.content.student@test.com
+@studentPassword = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "StudentContent",
+  "lastName": "Teacher",
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Teacher creates course
+POST {{baseUrl}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Student Content Test Course",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "Temporary course used for student content viewing tests."
+}
+
+> {%
+    client.global.set("studentContentCourseId", response.body.id);
+    client.global.set("studentContentJoinCode", response.body.joinCode);
+%}
+
+### Teacher publishes course
+PUT {{baseUrl}}/api/courses/{{studentContentCourseId}}/publish
+
+### Teacher creates module
+POST {{baseUrl}}/api/courses/{{studentContentCourseId}}/modules
+Content-Type: application/json
+
+{
+  "title": "Module 1: Published Biology Content",
+  "description": "This module should be visible to enrolled students."
+}
+
+> {%
+    client.global.set("studentContentModuleId", response.body.id);
+%}
+
+### Teacher publishes module
+PUT {{baseUrl}}/api/modules/{{studentContentModuleId}}/publish
+
+### Teacher creates lesson
+POST {{baseUrl}}/api/modules/{{studentContentModuleId}}/lessons
+Content-Type: application/json
+
+{
+  "title": "Lesson 1: Cells",
+  "content": "Cells are the basic unit of life.",
+  "estimatedMinutes": 15
+}
+
+> {%
+    client.global.set("studentContentLessonId", response.body.id);
+%}
+
+### Teacher publishes lesson
+PUT {{baseUrl}}/api/lessons/{{studentContentLessonId}}/publish
+
+### Teacher creates assignment
+POST {{baseUrl}}/api/modules/{{studentContentModuleId}}/assignments
+Content-Type: application/json
+
+{
+  "title": "Assignment 1: Cell Reflection",
+  "instructions": "Write a short reflection about cells.",
+  "maxPoints": 100.00,
+  "submissionType": "TEXT"
+}
+
+> {%
+    client.global.set("studentContentAssignmentId", response.body.id);
+%}
+
+### Teacher publishes assignment
+PUT {{baseUrl}}/api/assignments/{{studentContentAssignmentId}}/publish
+
+### Teacher creates quiz
+POST {{baseUrl}}/api/modules/{{studentContentModuleId}}/quizzes
+Content-Type: application/json
+
+{
+  "title": "Quiz 1: Cell Basics",
+  "description": "A short quiz about cells.",
+  "maxPoints": 10.00,
+  "timeLimitMinutes": 20,
+  "attemptsAllowed": 1
+}
+
+> {%
+    client.global.set("studentContentQuizId", response.body.id);
+%}
+
+### Teacher publishes quiz
+PUT {{baseUrl}}/api/quizzes/{{studentContentQuizId}}/publish
+
+### Teacher confirms mixed module content
+GET {{baseUrl}}/api/modules/{{studentContentModuleId}}/content
+
+### Teacher logout
+POST {{baseUrl}}/api/auth/logout
+
+### Register student
+# If this says "Email is already in use.", skip to Login student.
+POST {{baseUrl}}/api/auth/register/student
+Content-Type: application/json
+
+{
+  "firstName": "StudentContent",
+  "lastName": "Student",
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Login student
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}"
+}
+
+### Student joins course
+POST {{baseUrl}}/api/student/courses/join
+Content-Type: application/json
+
+{
+  "joinCode": "{{studentContentJoinCode}}"
+}
+
+### Student gets enrolled course by id
+GET {{baseUrl}}/api/student/courses/{{studentContentCourseId}}
+
+### Student gets published modules for course
+GET {{baseUrl}}/api/student/courses/{{studentContentCourseId}}/modules
+
+### Student gets module by id
+GET {{baseUrl}}/api/student/modules/{{studentContentModuleId}}
+
+### Student gets published mixed module content
+GET {{baseUrl}}/api/student/modules/{{studentContentModuleId}}/content
+
+### Student gets lesson by id
+GET {{baseUrl}}/api/student/lessons/{{studentContentLessonId}}
+
+### Student gets assignment by id
+GET {{baseUrl}}/api/student/assignments/{{studentContentAssignmentId}}
+
+### Student gets quiz by id
+GET {{baseUrl}}/api/student/quizzes/{{studentContentQuizId}}
+
+### Student logout
+POST {{baseUrl}}/api/auth/logout
+
+### Login teacher again for cleanup
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Cleanup: delete test course
+DELETE {{baseUrl}}/api/courses/{{studentContentCourseId}}
+
+### Teacher logout again
+POST {{baseUrl}}/api/auth/logout
