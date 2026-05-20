@@ -5,7 +5,7 @@
     gap: var(--padding-small);
 }
 
-.statusBadge {
+.progressBadge {
     width: fit-content;
     border-radius: 999px;
     padding: var(--padding-xsmall) var(--padding-small);
@@ -16,7 +16,7 @@
 }
 
 .detailsCard,
-.noticeCard {
+.emptyState {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -25,11 +25,7 @@
     border: 1px solid rgb(var(--border-color-rgb));
     border-radius: var(--border-radius-small);
     padding: var(--padding-medium);
-}
-
-.noticeCard {
-    background-color: rgba(var(--accent-color-rgb), 0.08);
-    border-color: rgba(var(--accent-color-rgb), 0.18);
+    line-height: 1.6;
 }
 
 .detailList {
@@ -54,49 +50,26 @@
     font-weight: 700;
 }
 
-.descriptionBlock {
-    display: flex;
-    flex-direction: column;
-    gap: var(--padding-small);
-    line-height: 1.6;
-}
-
-.descriptionBlock h2,
-.noticeCard h2 {
-    font-size: var(--font-size-large);
-}
-
-.noticeCard p {
-    line-height: 1.6;
-}
-
-.actions {
-    display: flex;
-    flex-direction: column;
-    gap: var(--padding-small);
-}
-
-.primaryButton,
-.secondaryButton {
+.quizForm {
     width: 100%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+}
+
+.submitButton {
+    width: 100%;
+    border: none;
     border-radius: var(--border-radius-xsmall);
     padding: var(--padding-small) var(--padding-medium);
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
     font-weight: 700;
 }
 
-.primaryButton {
-    border: none;
-    background-color: rgb(var(--accent-color-rgb));
-    color: rgb(var(--accent-color-text-rgb));
-}
-
-.secondaryButton {
-    border: 1px solid rgb(var(--border-color-rgb));
-    background-color: rgb(var(--background-color-rgb));
-    color: rgb(var(--text-color-rgb));
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .errorMessage {
@@ -112,7 +85,7 @@
     }
 
     .detailsCard,
-    .noticeCard {
+    .emptyState {
         padding: var(--padding-large);
     }
 
@@ -120,13 +93,7 @@
         grid-template-columns: repeat(3, 1fr);
     }
 
-    .actions {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .primaryButton,
-    .secondaryButton {
-        width: auto;
+    .submitButton {
+        width: fit-content;
     }
 }

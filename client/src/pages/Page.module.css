@@ -73,6 +73,7 @@
     .actions {
         width: auto;
         flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .primaryLink,

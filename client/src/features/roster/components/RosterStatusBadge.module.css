@@ -1,0 +1,9 @@
+.badge {
+    width: fit-content;
+    border-radius: 999px;
+    padding: var(--padding-xsmall) var(--padding-small);
+    background-color: rgba(var(--accent-color-rgb), 0.12);
+    color: rgb(var(--accent-color-rgb));
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}

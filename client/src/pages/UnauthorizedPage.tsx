@@ -6,15 +6,22 @@ export function UnauthorizedPage() {
     return (
         <main className={styles.page}>
             <section className={styles.content}>
-                <h1>Unauthorized</h1>
+                <p className={styles.eyebrow}>Unauthorized</p>
+                <h1>You do not have access to this page</h1>
 
                 <p className={styles.description}>
-                    You do not have permission to view this page.
+                    Log in with the correct account type to continue.
                 </p>
 
-                <Link className={styles.primaryLink} to="/">
-                    Go home
-                </Link>
+                <div className={styles.actions}>
+                    <Link className={styles.primaryLink} to="/login">
+                        Log in
+                    </Link>
+
+                    <Link className={styles.secondaryLink} to="/">
+                        Go home
+                    </Link>
+                </div>
             </section>
         </main>
     );

@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 
 import { isApiError } from "@/api";
 import type { Course } from "@/features/teacher-courses";
+import {
+    completeStudentCourse,
+    dropStudentCourse,
+} from "@/features/student-courses";
 
 import {
     getStudentCourse,
@@ -23,6 +27,7 @@ function formatGradeLevel(gradeLevel: Course["gradeLevel"]) {
 }
 
 export function StudentCourseDetailPage() {
+    const navigate = useNavigate();
     const { courseId } = useParams();
 
     const parsedCourseId = Number(courseId);
@@ -34,7 +39,9 @@ export function StudentCourseDetailPage() {
         StudentModuleWithContent[]
     >([]);
     const [errorMessage, setErrorMessage] = useState("");
+    const [actionMessage, setActionMessage] = useState("");
     const [isLoadingCourse, setIsLoadingCourse] = useState(true);
+    const [isRunningAction, setIsRunningAction] = useState(false);
 
     useEffect(() => {
         if (!isValidCourseId) {
@@ -87,6 +94,65 @@ export function StudentCourseDetailPage() {
         };
     }, [isValidCourseId, parsedCourseId]);
 
+    async function handleDropCourse() {
+        const confirmed = window.confirm(
+            "Are you sure you want to drop this course? It will be removed from your active courses."
+        );
+
+        if (!confirmed || !isValidCourseId) {
+            return;
+        }
+
+        setActionMessage("");
+        setErrorMessage("");
+        setIsRunningAction(true);
+
+        try {
+            await dropStudentCourse(parsedCourseId);
+            navigate("/student", { replace: true });
+        } catch (error) {
+            if (isApiError(error)) {
+                setErrorMessage(error.message);
+            } else {
+                setErrorMessage(
+                    "Something went wrong while dropping the course."
+                );
+            }
+        } finally {
+            setIsRunningAction(false);
+        }
+    }
+
+    async function handleCompleteCourse() {
+        const confirmed = window.confirm(
+            "Mark this course as complete? It will be removed from your active courses."
+        );
+
+        if (!confirmed || !isValidCourseId) {
+            return;
+        }
+
+        setActionMessage("");
+        setErrorMessage("");
+        setIsRunningAction(true);
+
+        try {
+            await completeStudentCourse(parsedCourseId);
+            setActionMessage("Course marked complete.");
+            navigate("/student", { replace: true });
+        } catch (error) {
+            if (isApiError(error)) {
+                setErrorMessage(error.message);
+            } else {
+                setErrorMessage(
+                    "Something went wrong while completing the course."
+                );
+            }
+        } finally {
+            setIsRunningAction(false);
+        }
+    }
+
     return (
         <main className={pageStyles.page}>
             <section className={pageStyles.content}>
@@ -102,6 +168,10 @@ export function StudentCourseDetailPage() {
 
                 {errorMessage && (
                     <p className={styles.errorMessage}>{errorMessage}</p>
+                )}
+
+                {actionMessage && (
+                    <p className={styles.successMessage}>{actionMessage}</p>
                 )}
 
                 {isValidCourseId &&
@@ -144,6 +214,30 @@ export function StudentCourseDetailPage() {
                                     {course.description}
                                 </p>
                             )}
+                        </div>
+
+                        <div className={styles.actionCard}>
+                            <h2>Course actions</h2>
+
+                            <div className={styles.actions}>
+                                <button
+                                    className={styles.primaryButton}
+                                    type="button"
+                                    disabled={isRunningAction}
+                                    onClick={handleCompleteCourse}
+                                >
+                                    Mark complete
+                                </button>
+
+                                <button
+                                    className={styles.dangerButton}
+                                    type="button"
+                                    disabled={isRunningAction}
+                                    onClick={handleDropCourse}
+                                >
+                                    Drop course
+                                </button>
+                            </div>
                         </div>
 
                         <div className={styles.moduleSection}>

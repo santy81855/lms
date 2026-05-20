@@ -47,7 +47,7 @@ export function AppLayout() {
         <div className={styles.layout}>
             <header className={styles.navbar}>
                 <Link className={styles.brand} to={getDashboardPath(roles)}>
-                    LMS
+                    Course Manager
                 </Link>
 
                 <nav className={styles.navLinks} aria-label="Main navigation">

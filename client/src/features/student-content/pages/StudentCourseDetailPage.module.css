@@ -16,6 +16,7 @@
 }
 
 .detailsCard,
+.actionCard,
 .moduleSection {
     width: 100%;
     display: flex;
@@ -84,6 +85,62 @@
     color: rgba(var(--text-color-rgb), 0.8);
 }
 
+.actionCard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    background-color: rgb(var(--background-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-small);
+    padding: var(--padding-medium);
+}
+
+.actionCard h2 {
+    font-size: var(--font-size-large);
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+}
+
+.primaryButton,
+.dangerButton {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small) var(--padding-medium);
+    font-weight: 700;
+}
+
+.primaryButton {
+    border: none;
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+}
+
+.dangerButton {
+    border: 1px solid #b00020;
+    background-color: transparent;
+    color: #b00020;
+}
+
+.primaryButton:disabled,
+.dangerButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.successMessage {
+    color: rgb(var(--accent-color-rgb));
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
 .errorMessage {
     color: #b00020;
     font-size: var(--font-size-small);
@@ -98,11 +155,22 @@
     }
 
     .detailsCard,
+    .actionCard,
     .moduleSection {
         padding: var(--padding-large);
     }
 
     .detailList {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .primaryButton,
+    .dangerButton {
+        width: auto;
     }
 }

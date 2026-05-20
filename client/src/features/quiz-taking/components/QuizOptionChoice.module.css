@@ -1,0 +1,14 @@
+.choice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--padding-small);
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small);
+    background-color: rgb(var(--background-color-rgb));
+    line-height: 1.5;
+}
+
+.choice input {
+    margin-top: 0.2rem;
+}
