@@ -1,0 +1,171 @@
+.header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+}
+
+.titleGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-xsmall);
+}
+
+.detailsCard,
+.questionsCard,
+.actionCard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    background-color: rgb(var(--background-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-small);
+    padding: var(--padding-medium);
+}
+
+.detailList {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--padding-medium);
+}
+
+.detailList div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-xsmall);
+}
+
+.detailList dt {
+    color: rgba(var(--text-color-rgb), 0.7);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.detailList dd {
+    font-weight: 700;
+}
+
+.descriptionBlock,
+.sectionHeader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+    line-height: 1.6;
+}
+
+.sectionHeader p {
+    color: rgba(var(--text-color-rgb), 0.7);
+}
+
+.descriptionBlock h2,
+.questionsCard h2,
+.actionCard h2 {
+    font-size: var(--font-size-large);
+}
+
+.questionList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+    border: 1px dashed rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-small);
+    padding: var(--padding-medium);
+    color: rgba(var(--text-color-rgb), 0.8);
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small) var(--padding-medium);
+    font-weight: 700;
+}
+
+.primaryButton {
+    border: none;
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+}
+
+.secondaryButton {
+    border: 1px solid rgb(var(--border-color-rgb));
+    background-color: rgb(var(--surface-color-rgb));
+    color: rgb(var(--text-color-rgb));
+}
+
+.dangerButton {
+    border: 1px solid #b00020;
+    background-color: transparent;
+    color: #b00020;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.errorMessage {
+    color: #b00020;
+    font-size: var(--font-size-small);
+}
+
+.successMessage {
+    color: rgb(var(--accent-color-rgb));
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.warningMessage {
+    color: rgb(var(--accent-color-rgb));
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+@media (min-width: 768px) {
+    .header,
+    .sectionHeader {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .detailsCard,
+    .questionsCard,
+    .actionCard {
+        padding: var(--padding-large);
+    }
+
+    .detailList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .primaryButton,
+    .secondaryButton,
+    .dangerButton {
+        width: auto;
+    }
+}

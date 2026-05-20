@@ -38,6 +38,23 @@ public class UserController {
         this.authenticationManager = authenticationManager;
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(List.of("Not authenticated."));
+        }
+
+        String normalizedEmail = authentication.getName().toLowerCase().trim();
+
+        Optional<User> user = userService.findByEmailWithRoles(normalizedEmail);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(401).body(List.of("User not found."));
+        }
+
+        return ResponseEntity.ok(new UserResponse(user.get()));
+    }
+
     @PostMapping("/register/student")
     public ResponseEntity<?> registerStudent(@RequestBody RegisterRequest request) {
         Result<User> result = userService.registerStudent(request);

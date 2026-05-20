@@ -1,0 +1,108 @@
+.layout {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(var(--background-color-rgb));
+}
+
+.navbar {
+    width: 100%;
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    gap: var(--padding-small);
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+    padding-inline: var(--padding-medium);
+    flex-shrink: 0;
+}
+
+.brand {
+    font-size: var(--font-size-large);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-small);
+    margin-left: auto;
+}
+
+.navLink {
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-xsmall) var(--padding-small);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.navLink:hover,
+.active {
+    background-color: rgba(var(--accent-color-text-rgb), 0.16);
+    opacity: 1;
+}
+
+.userArea {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-small);
+}
+
+.userName {
+    display: none;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+}
+
+.logoutButton {
+    border: 1px solid rgba(var(--accent-color-text-rgb), 0.35);
+    border-radius: var(--border-radius-xsmall);
+    background-color: transparent;
+    color: rgb(var(--accent-color-text-rgb));
+    padding: var(--padding-xsmall) var(--padding-small);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.logoutButton:hover {
+    background-color: rgba(var(--accent-color-text-rgb), 0.16);
+}
+
+.logoutButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.errorMessage {
+    width: 100%;
+    background-color: #ffe8e8;
+    color: #b00020;
+    padding: var(--padding-small) var(--padding-medium);
+    font-size: var(--font-size-small);
+}
+
+.main {
+    width: 100%;
+    height: calc(100% - var(--nav-height));
+    overflow-x: hidden;
+}
+
+@media (min-width: 768px) {
+    .navbar {
+        padding-inline: var(--padding-xlarge);
+        gap: var(--padding-medium);
+    }
+
+    .navLinks {
+        margin-left: var(--padding-large);
+        margin-right: auto;
+    }
+
+    .userName {
+        display: inline;
+    }
+}
