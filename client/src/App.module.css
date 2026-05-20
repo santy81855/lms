@@ -1,0 +1,96 @@
+.app {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(var(--background-color-rgb));
+}
+
+.page {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: rgb(var(--light-grey-rgb));
+    padding-inline: var(--padding-medium);
+    padding-block: var(--padding-large);
+}
+
+.content {
+    width: 100%;
+    max-width: var(--max-width);
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+}
+
+uccc.debugPanel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    background-color: rgb(var(--background-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-small);
+    padding: var(--padding-medium);
+}
+
+.statusGrid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-small);
+}
+
+.button,
+.buttonSecondary {
+    width: 100%;
+    border: none;
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small) var(--padding-medium);
+}
+
+.button {
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+}
+
+.buttonSecondary {
+    background-color: rgb(var(--surface-color-rgb));
+    color: rgb(var(--text-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+}
+
+.button:disabled,
+.buttonSecondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.errorMessage {
+    color: red;
+}
+
+@media (min-width: 768px) {
+    .actions {
+        flex-direction: row;
+    }
+
+    .button,
+    .buttonSecondary {
+        width: auto;
+    }
+}
+
+@media (min-width: 768px) {
+    .page {
+        padding-inline: var(--padding-xlarge);
+        padding-block: var(--padding-xlarge);
+    }
+}

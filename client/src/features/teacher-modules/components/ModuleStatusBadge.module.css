@@ -1,0 +1,27 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    border-radius: 999px;
+    padding: var(--padding-xsmall) var(--padding-small);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.draft {
+    background-color: rgb(var(--surface-color-rgb));
+    color: rgb(var(--text-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+}
+
+.published {
+    background-color: rgba(var(--accent-color-rgb), 0.12);
+    color: rgb(var(--accent-color-rgb));
+    border: 1px solid rgba(var(--accent-color-rgb), 0.3);
+}
+
+.archived {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: rgba(var(--text-color-rgb), 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}

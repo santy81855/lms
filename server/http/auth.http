@@ -122,6 +122,13 @@ Content-Type: application/json
   "password": "123"
 }
 
+### -------------------------------------------------------------------------
+### Test current user before login
+### Expected:
+### - 401 Unauthorized
+### -------------------------------------------------------------------------
+GET {{host}}/api/auth/me
+
 
 ### -------------------------------------------------------------------------
 ### 7. Login with wrong password
@@ -154,6 +161,15 @@ Content-Type: application/json
   "password": "{{studentPassword}}"
 }
 
+### -------------------------------------------------------------------------
+### Get current user from active session
+### Expected:
+### - 200 OK
+### - Response should be UserResponse
+### - Confirms JSESSIONID session can restore logged-in user
+### -------------------------------------------------------------------------
+GET {{host}}/api/auth/me
+
 
 ### -------------------------------------------------------------------------
 ### 9. Login with teacher credentials
@@ -178,6 +194,13 @@ Content-Type: application/json
 ### - Should invalidate the current session and delete/expire JSESSIONID.
 ### -------------------------------------------------------------------------
 POST {{host}}/api/auth/logout
+
+### -------------------------------------------------------------------------
+### Test current user after logout
+### Expected:
+### - 401 Unauthorized
+### -------------------------------------------------------------------------
+GET {{host}}/api/auth/me
 
 
 ### -------------------------------------------------------------------------

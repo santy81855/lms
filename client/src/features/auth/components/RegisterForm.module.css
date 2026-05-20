@@ -1,0 +1,105 @@
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    background-color: rgb(var(--background-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-small);
+    padding: var(--padding-medium);
+}
+
+.roleGroup {
+    width: 100%;
+    border: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--padding-small);
+}
+
+.legend {
+    margin-bottom: var(--padding-small);
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.radioCard {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-small);
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small);
+    cursor: pointer;
+}
+
+.radioCard:has(input:checked) {
+    border-color: rgb(var(--accent-color-rgb));
+    background-color: rgba(var(--accent-color-rgb), 0.08);
+}
+
+.fieldGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-xsmall);
+}
+
+.label {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.input {
+    width: 100%;
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small);
+    background-color: rgb(var(--background-color-rgb));
+    color: rgb(var(--text-color-rgb));
+}
+
+.input:focus {
+    outline: 2px solid rgb(var(--accent-color-pop-rgb));
+    outline-offset: 2px;
+}
+
+.submitButton {
+    width: 100%;
+    border: none;
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small) var(--padding-medium);
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+    font-weight: 700;
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.errorMessage {
+    color: #b00020;
+    font-size: var(--font-size-small);
+}
+
+.helperText {
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+}
+
+.helperText a {
+    color: rgb(var(--accent-color-rgb));
+    font-weight: 700;
+}
+
+@media (min-width: 768px) {
+    .form {
+        padding: var(--padding-large);
+    }
+
+    .roleGroup {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

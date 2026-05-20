@@ -1,0 +1,110 @@
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    background-color: rgb(var(--background-color-rgb));
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-small);
+    padding: var(--padding-medium);
+}
+
+.fieldGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-xsmall);
+}
+
+.inlineFields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--padding-medium);
+}
+
+.label {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.input,
+.textarea,
+.largeTextarea {
+    width: 100%;
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small);
+    background-color: rgb(var(--background-color-rgb));
+    color: rgb(var(--text-color-rgb));
+}
+
+.textarea,
+.largeTextarea {
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.textarea {
+    min-height: 120px;
+}
+
+.largeTextarea {
+    min-height: 320px;
+}
+
+.input:focus,
+.textarea:focus,
+.largeTextarea:focus {
+    outline: 2px solid rgb(var(--accent-color-pop-rgb));
+    outline-offset: 2px;
+}
+
+.checkboxCard {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-small);
+    border: 1px solid rgb(var(--border-color-rgb));
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small);
+    font-weight: 700;
+}
+
+.helpText {
+    color: rgba(var(--text-color-rgb), 0.7);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+}
+
+.submitButton {
+    width: 100%;
+    border: none;
+    border-radius: var(--border-radius-xsmall);
+    padding: var(--padding-small) var(--padding-medium);
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+    font-weight: 700;
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.errorMessage {
+    color: #b00020;
+    font-size: var(--font-size-small);
+}
+
+@media (min-width: 768px) {
+    .form {
+        padding: var(--padding-large);
+    }
+
+    .inlineFields {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .submitButton {
+        width: fit-content;
+    }
+}

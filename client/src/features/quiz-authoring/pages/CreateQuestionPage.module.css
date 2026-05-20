@@ -1,0 +1,4 @@
+.errorMessage {
+    color: #b00020;
+    font-size: var(--font-size-small);
+}
