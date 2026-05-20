@@ -137,12 +137,27 @@ export function StudentQuizDetailPage() {
                         </div>
 
                         <div className={styles.noticeCard}>
-                            <h2>Quiz taking coming next</h2>
+                            <h2>Ready to start?</h2>
                             <p>
-                                This page confirms students can open published
-                                quizzes. Next, we’ll add the quiz-taking flow
-                                with questions, answer choices, and submission.
+                                Answer each question, then submit the quiz to
+                                see your latest score.
                             </p>
+
+                            <div className={styles.actions}>
+                                <Link
+                                    className={styles.primaryButton}
+                                    to={`/student/courses/${parsedCourseId}/quizzes/${quiz.id}/take`}
+                                >
+                                    Take quiz
+                                </Link>
+
+                                <Link
+                                    className={styles.secondaryButton}
+                                    to={`/student/courses/${parsedCourseId}/quizzes/${quiz.id}/result`}
+                                >
+                                    View latest result
+                                </Link>
+                            </div>
                         </div>
                     </>
                 )}

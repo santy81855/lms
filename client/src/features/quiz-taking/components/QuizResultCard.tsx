@@ -1,0 +1,38 @@
+import type { StudentQuizResult } from "../types/quizTakingTypes";
+
+import styles from "./QuizResultCard.module.css";
+
+type QuizResultCardProps = {
+    result: StudentQuizResult;
+};
+
+export function QuizResultCard({ result }: QuizResultCardProps) {
+    const percentage =
+        result.maxScore === 0
+            ? 0
+            : Math.round((result.score / result.maxScore) * 100);
+
+    return (
+        <article className={styles.card}>
+            <p className={styles.eyebrow}>Attempt {result.attemptNumber}</p>
+
+            <h2>
+                Score: {result.score} / {result.maxScore}
+            </h2>
+
+            <p className={styles.percentage}>{percentage}%</p>
+
+            <dl className={styles.detailList}>
+                <div>
+                    <dt>Submission ID</dt>
+                    <dd>{result.submissionId}</dd>
+                </div>
+
+                <div>
+                    <dt>Quiz ID</dt>
+                    <dd>{result.quizId}</dd>
+                </div>
+            </dl>
+        </article>
+    );
+}

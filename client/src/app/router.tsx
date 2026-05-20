@@ -39,26 +39,33 @@ import {
     StudentLessonDetailPage,
     StudentQuizDetailPage,
 } from "@/features/student-content";
+import { QuizResultPage, TakeQuizPage } from "@/features/quiz-taking";
+import { CourseRosterPage } from "@/features/roster";
 import { AppLayout } from "@/layouts";
 import { LandingPage } from "@/pages/LandingPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { UnauthorizedPage } from "@/pages/UnauthorizedPage";
+import { AppErrorPage } from "@/pages/AppErrorPage";
 
 export const router = createBrowserRouter([
     {
         path: "/",
         element: <LandingPage />,
+        errorElement: <AppErrorPage />,
     },
     {
         path: "/login",
         element: <LoginPage />,
+        errorElement: <AppErrorPage />,
     },
     {
         path: "/register",
         element: <RegisterPage />,
+        errorElement: <AppErrorPage />,
     },
     {
         element: <ProtectedRoute />,
+        errorElement: <AppErrorPage />,
         children: [
             {
                 element: <AppLayout />,
@@ -142,6 +149,10 @@ export const router = createBrowserRouter([
                                 path: "/teacher/courses/:courseId/modules/:moduleId/quizzes/:quizId/edit",
                                 element: <EditQuizPage />,
                             },
+                            {
+                                path: "/teacher/courses/:courseId/roster",
+                                element: <CourseRosterPage />,
+                            },
                         ],
                     },
                     {
@@ -162,6 +173,14 @@ export const router = createBrowserRouter([
                             {
                                 path: "/student/courses/:courseId/quizzes/:quizId",
                                 element: <StudentQuizDetailPage />,
+                            },
+                            {
+                                path: "/student/courses/:courseId/quizzes/:quizId/take",
+                                element: <TakeQuizPage />,
+                            },
+                            {
+                                path: "/student/courses/:courseId/quizzes/:quizId/result",
+                                element: <QuizResultPage />,
                             },
                         ],
                     },

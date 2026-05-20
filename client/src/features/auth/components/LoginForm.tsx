@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { isApiError } from "@/api";
 
@@ -26,7 +26,7 @@ function getPostLoginPath(roles: string[]) {
 
 export function LoginForm() {
     const navigate = useNavigate();
-    const location = useLocation();
+    //const location = useLocation();
     const { login, isLoading } = useAuth();
 
     const [email, setEmail] = useState(TEST_LOGIN.email);
@@ -46,8 +46,8 @@ export function LoginForm() {
                 password,
             });
 
-            const from = location.state?.from?.pathname;
-            navigate(from ?? getPostLoginPath(authenticatedUser.roles), {
+            //const from = location.state?.from?.pathname;
+            navigate(getPostLoginPath(authenticatedUser.roles), {
                 replace: true,
             });
         } catch (error) {

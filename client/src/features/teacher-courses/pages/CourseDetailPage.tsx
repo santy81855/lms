@@ -263,9 +263,21 @@ export function CourseDetailPage() {
                             <div className={styles.actions}>
                                 <Link
                                     className={styles.secondaryButton}
+                                    to={`/teacher/courses/${course.id}/modules/new`}
+                                >
+                                    Add module
+                                </Link>
+                                <Link
+                                    className={styles.secondaryButton}
                                     to={`/teacher/courses/${course.id}/edit`}
                                 >
                                     Edit details
+                                </Link>
+                                <Link
+                                    className={styles.secondaryButton}
+                                    to={`/teacher/courses/${course.id}/roster`}
+                                >
+                                    View roster
                                 </Link>
 
                                 <button
