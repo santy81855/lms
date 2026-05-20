@@ -1,0 +1,75 @@
+@baseUrl = http://localhost:8080
+
+@teacherEmail = ai.teacher@test.com
+@teacherPassword = Password123!
+
+### Register teacher
+# If this says "Email is already in use.", skip to Login teacher.
+POST {{baseUrl}}/api/auth/register/teacher
+Content-Type: application/json
+
+{
+  "firstName": "AI",
+  "lastName": "Teacher",
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Login teacher
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{teacherEmail}}",
+  "password": "{{teacherPassword}}"
+}
+
+### Generate course from syllabus
+POST {{baseUrl}}/api/courses/ai-generate
+Content-Type: application/json
+
+{
+  "title": "Intro to Environmental Science",
+  "subject": "Science",
+  "gradeLevel": "HIGH_SCHOOL",
+  "description": "A generated environmental science course based on a short syllabus.",
+  "moduleCount": 2,
+  "includeAssignments": true,
+  "includeQuizzes": true,
+  "syllabusText": "Course Description: This course introduces students to environmental science, ecosystems, biodiversity, natural resources, pollution, climate change, and sustainability. Students will learn how human activity affects natural systems and evaluate practical solutions. Unit 1 covers ecosystems, food webs, energy flow, and biodiversity. Unit 2 covers natural resources, renewable and nonrenewable energy, pollution, and climate change. Students should complete readings, short reflections, quizzes, and a final sustainability project."
+}
+
+> {%
+    client.global.set("aiGeneratedCourseId", response.body.id);
+%}
+
+### Get generated course
+GET {{baseUrl}}/api/courses/{{aiGeneratedCourseId}}
+
+### Get generated modules
+GET {{baseUrl}}/api/courses/{{aiGeneratedCourseId}}/modules
+
+> {%
+    if (response.body.length > 0) {
+        client.global.set("aiGeneratedFirstModuleId", response.body[0].id);
+    }
+%}
+
+### Get first generated module
+GET {{baseUrl}}/api/modules/{{aiGeneratedFirstModuleId}}
+
+### Get first generated module content
+GET {{baseUrl}}/api/modules/{{aiGeneratedFirstModuleId}}/content
+
+### Publish generated course
+PUT {{baseUrl}}/api/courses/{{aiGeneratedCourseId}}/publish
+
+### Confirm generated course is active
+GET {{baseUrl}}/api/courses/{{aiGeneratedCourseId}}
+
+### Cleanup: delete generated course
+# Comment this out if you want to keep the generated course for frontend testing.
+DELETE {{baseUrl}}/api/courses/{{aiGeneratedCourseId}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
