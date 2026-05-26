@@ -140,6 +140,9 @@ public class OpenAiCurriculumClient {
                 - Every quiz question must have exactly one correct option.
                 - If includeAssignments is false, return an empty assignments array for each module.
                 - If includeQuizzes is false, return an empty quizzes array for each module.
+                - attemptsAllowed must be at least 1.
+                - timeLimitMinutes must be at least 1.
+                - quiz maxPoints must be greater than 0.
                 """;
     }
 
@@ -185,9 +188,18 @@ public class OpenAiCurriculumClient {
                 "properties", Map.of(
                         "title", Map.of("type", "string"),
                         "description", Map.of("type", "string"),
-                        "maxPoints", Map.of("type", "number"),
-                        "timeLimitMinutes", Map.of("type", "integer"),
-                        "attemptsAllowed", Map.of("type", "integer"),
+                        "maxPoints", Map.of(
+                                "type", "number",
+                                "minimum", 1
+                        ),
+                        "timeLimitMinutes", Map.of(
+                                "type", "integer",
+                                "minimum", 1
+                        ),
+                        "attemptsAllowed", Map.of(
+                                "type", "integer",
+                                "minimum", 1
+                        ),
                         "questions", Map.of(
                                 "type", "array",
                                 "items", questionSchema

@@ -199,15 +199,13 @@ public class AiCourseGenerationService {
             quiz.setTitle(valueOrDefault(quizPlan.getTitle(), "Generated Quiz"));
             quiz.setDescription(valueOrDefault(quizPlan.getDescription(), ""));
             quiz.setMaxPoints(
-                    quizPlan.getMaxPoints() == null
-                            ? BigDecimal.valueOf(10)
-                            : quizPlan.getMaxPoints()
+                    resolvePositiveBigDecimal(quizPlan.getMaxPoints(), BigDecimal.valueOf(10))
             );
             quiz.setTimeLimitMinutes(
-                    quizPlan.getTimeLimitMinutes() == null ? 20 : quizPlan.getTimeLimitMinutes()
+                    resolvePositiveInteger(quizPlan.getTimeLimitMinutes(), 20)
             );
             quiz.setAttemptsAllowed(
-                    quizPlan.getAttemptsAllowed() == null ? 1 : quizPlan.getAttemptsAllowed()
+                    resolvePositiveInteger(quizPlan.getAttemptsAllowed(), 1)
             );
 
             Result<Quiz> quizResult = moduleContentService.createQuiz(
@@ -224,6 +222,22 @@ public class AiCourseGenerationService {
 
             createQuizQuestions(quizPlan, createdQuiz.getId(), teacherId);
         }
+    }
+
+    private Integer resolvePositiveInteger(Integer value, Integer fallback) {
+        if (value == null || value <= 0) {
+            return fallback;
+        }
+
+        return value;
+    }
+
+    private BigDecimal resolvePositiveBigDecimal(BigDecimal value, BigDecimal fallback) {
+        if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
+            return fallback;
+        }
+
+        return value;
     }
 
     private void createQuizQuestions(GeneratedQuizPlan quizPlan,
