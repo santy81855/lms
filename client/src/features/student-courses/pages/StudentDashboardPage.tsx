@@ -7,6 +7,7 @@ import { getStudentCourses, joinCourse } from "../api/studentCourseApi";
 import { JoinCourseForm } from "../components/JoinCourseForm";
 import { StudentCourseCard } from "../components/StudentCourseCard";
 import type { JoinCourseFormData } from "../types/studentCourseTypes";
+import SearchBar from "../components/SearchBar";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./StudentDashboardPage.module.css";
@@ -87,6 +88,8 @@ export function StudentDashboardPage() {
                     <p className={pageStyles.eyebrow}>Student dashboard</p>
                     <h1>My courses</h1>
                 </div>
+
+                <SearchBar />
 
                 <p className={pageStyles.description}>
                     Join a course with your teacher’s join code, then open your
