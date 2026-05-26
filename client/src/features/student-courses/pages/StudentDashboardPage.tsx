@@ -19,11 +19,34 @@ export function StudentDashboardPage() {
     const [joinSuccessMessage, setJoinSuccessMessage] = useState("");
     const [isLoadingCourses, setIsLoadingCourses] = useState(true);
     const [isJoiningCourse, setIsJoiningCourse] = useState(false);
+    const [searchContent, setSearchContent] = useState("");
+    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
 
     async function loadCourses() {
         const studentCourses = await getStudentCourses();
         setCourses(studentCourses);
     }
+
+    useEffect(() => {
+
+        const filtered = courses.filter(course => {
+            if (course.title == null || course.title == undefined) {
+                course.title = ""
+            }
+            if( course.subject == null || course.subject == undefined ){
+                course.subject = "";
+            }
+            if(course.description == null || course.description == undefined){
+                course.description = "";
+            }
+
+            return course.title.includes(searchContent) ||
+                course.subject.includes(searchContent) ||
+                course.description.includes(searchContent)
+        });
+
+        setFilteredCourses([...filtered]);
+    }, [searchContent])
 
     useEffect(() => {
         let shouldIgnore = false;
@@ -32,6 +55,7 @@ export function StudentDashboardPage() {
             .then((studentCourses) => {
                 if (!shouldIgnore) {
                     setCourses(studentCourses);
+                    setFilteredCourses(studentCourses);
                 }
             })
             .catch((error: unknown) => {
@@ -81,6 +105,7 @@ export function StudentDashboardPage() {
         }
     }
 
+
     return (
         <main className={pageStyles.page}>
             <section className={pageStyles.content}>
@@ -89,7 +114,7 @@ export function StudentDashboardPage() {
                     <h1>My courses</h1>
                 </div>
 
-                <SearchBar />
+                <SearchBar searchContent={searchContent} setSearchContent={setSearchContent} />
 
                 <p className={pageStyles.description}>
                     Join a course with your teacher’s join code, then open your
@@ -129,19 +154,32 @@ export function StudentDashboardPage() {
 
                     {!isLoadingCourses &&
                         !loadErrorMessage &&
-                        courses.length === 0 && (
+                        filteredCourses.length === 0 &&
+                        courses.length > 0 && 
+                        (
                             <div className={styles.emptyState}>
-                                <h3>No courses yet</h3>
+                                <h3>No courses found</h3>
                                 <p>
-                                    Use a join code to enroll in your first
-                                    course.
+                                    search for something else
+                                </p>
+                            </div>
+                        )}
+
+                    {!isLoadingCourses &&
+                        !loadErrorMessage &&
+                        courses.length === 0 &&
+                        (
+                            <div className={styles.emptyState}>
+                                <h3>No courses found</h3>
+                                <p>
+                                    sign up for your first course
                                 </p>
                             </div>
                         )}
 
                     {!isLoadingCourses && courses.length > 0 && (
                         <div className={styles.courseList}>
-                            {courses.map((course) => (
+                            {filteredCourses.map((course) => (
                                 <StudentCourseCard
                                     key={course.id}
                                     course={course}
