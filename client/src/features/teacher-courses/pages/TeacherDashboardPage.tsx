@@ -5,6 +5,7 @@ import { isApiError } from "@/api";
 import { CourseCard } from "../components/CourseCard";
 import { getTeacherCourses } from "../api/teacherCourseApi";
 import type { Course } from "../types/courseTypes";
+import SearchBar from "../components/SearchBar";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./TeacherDashboardPage.module.css";
@@ -13,12 +14,16 @@ export function TeacherDashboardPage() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+    const [searchContent, setSearchContent] = useState("");
+    const [sort, setSort] = useState("A-Z");
 
     useEffect(() => {
         async function loadCourses() {
             try {
                 const teacherCourses = await getTeacherCourses();
                 setCourses(teacherCourses);
+                setFilteredCourses(teacherCourses);
             } catch (error) {
                 if (isApiError(error)) {
                     setErrorMessage(error.message);
@@ -33,7 +38,47 @@ export function TeacherDashboardPage() {
         }
 
         loadCourses();
-    }, []);
+    }, [searchContent, sort]);
+
+    useEffect(() => {
+
+        const filtered = courses
+            .filter((course) => {
+                const title = course.title ?? "";
+                const subject = course.subject ?? "";
+                const description = course.description ?? "";
+
+                const search = searchContent.toLowerCase();
+
+                return (
+                    title.toLowerCase().includes(search) ||
+                    subject.toLowerCase().includes(search) ||
+                    description.toLowerCase().includes(search)
+                );
+            })
+            .sort((a, b) => {
+                if (sort === "A-Z") {
+                    return a.title.localeCompare(b.title)
+                }
+
+                if (sort === "Newest") {
+                    return (
+                        new Date(b.updatedAt ?? "").getTime() - new Date(a.updatedAt ?? "").getTime()
+                    );
+                }
+
+                if (sort === "Oldest") {
+                    return (
+                        new Date(a.updatedAt ?? "").getTime() - new Date(b.updatedAt ?? "").getTime()
+                    );
+                }
+
+                return 0;
+            }
+            );
+        setFilteredCourses([...filtered]);
+    }, [courses, searchContent, sort]
+);
 
     return (
         <main className={pageStyles.page}>
@@ -61,6 +106,17 @@ export function TeacherDashboardPage() {
                     </div>
                 </div>
 
+                <SearchBar
+                    searchContent={searchContent}
+                    setSearchContent={setSearchContent}
+                />
+                    
+                <select onChange={(e) => setSort(e.target.value)}>
+                    <option value="A-Z">A-Z</option>
+                    <option value="Newest">Newest</option>
+                    <option value="Oldest">Oldest</option>
+                </select>
+
                 <p className={pageStyles.description}>
                     View your courses and their current publishing status.
                 </p>
@@ -83,7 +139,7 @@ export function TeacherDashboardPage() {
 
                 {!isLoadingCourses && courses.length > 0 && (
                     <div className={styles.courseList}>
-                        {courses.map((course) => (
+                        {filteredCourses.map((course) => (
                             <CourseCard key={course.id} course={course} />
                         ))}
                     </div>
