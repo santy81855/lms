@@ -5,6 +5,8 @@ import jakarta.validation.Validator;
 import lms.server.data.QuizAnswerOptionRepository;
 import lms.server.data.QuizQuestionRepository;
 import lms.server.data.QuizSubmissionRepository;
+import lms.server.data.UserRepository;
+import lms.server.models.User;
 import lms.server.models.dtos.QuizSubmissionResponse;
 import lms.server.models.dtos.QuizSubmissionsResponse;
 import lms.server.models.Quiz;
@@ -26,16 +28,19 @@ public class QuizAuthoringService {
     private final QuizAnswerOptionRepository quizAnswerOptionRepository;
     private final Validator validator;
     private final QuizSubmissionRepository quizSubmissionRepository;
+    private final UserRepository userRepository;
 
     public QuizAuthoringService(ModuleContentService moduleContentService,
                                 QuizQuestionRepository quizQuestionRepository,
                                 QuizAnswerOptionRepository quizAnswerOptionRepository,
                                 QuizSubmissionRepository quizSubmissionRepository,
+                                UserRepository userRepository,
                                 Validator validator) {
         this.moduleContentService = moduleContentService;
         this.quizQuestionRepository = quizQuestionRepository;
         this.quizAnswerOptionRepository = quizAnswerOptionRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
+        this.userRepository = userRepository;
         this.validator = validator;
     }
 
@@ -54,7 +59,10 @@ public class QuizAuthoringService {
 
         List<QuizSubmissionResponse> submissions = quizSubmissionRepository.findByQuizId(quizId)
                 .stream()
-                .map(QuizSubmissionResponse::new)
+                .map(submission -> {
+                    User student = userRepository.findById(submission.getStudentId()).orElse(null);
+                    return new QuizSubmissionResponse(submission, student);
+                })
                 .toList();
 
         result.setPayload(new QuizSubmissionsResponse(submissions));
