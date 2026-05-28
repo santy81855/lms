@@ -1,0 +1,19 @@
+.button {
+    position: fixed;
+    bottom: var(--padding-large);
+    right: var(--padding-large);
+    padding: var(--padding-large);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--font-size-xlarge);
+    background-color: rgb(var(--accent-color-rgb));
+    color: rgb(var(--accent-color-text-rgb));
+}
+
+.button:hover {
+    background-color: rgb(var(--accent-color-rgb), 0.9);
+}
