@@ -4,6 +4,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lms.server.data.QuizAnswerOptionRepository;
 import lms.server.data.QuizQuestionRepository;
+import lms.server.data.QuizSubmissionRepository;
+import lms.server.models.dtos.QuizSubmissionResponse;
+import lms.server.models.dtos.QuizSubmissionsResponse;
 import lms.server.models.Quiz;
 import lms.server.models.QuizAnswerOption;
 import lms.server.models.QuizQuestion;
@@ -22,15 +25,40 @@ public class QuizAuthoringService {
     private final QuizQuestionRepository quizQuestionRepository;
     private final QuizAnswerOptionRepository quizAnswerOptionRepository;
     private final Validator validator;
+    private final QuizSubmissionRepository quizSubmissionRepository;
 
     public QuizAuthoringService(ModuleContentService moduleContentService,
                                 QuizQuestionRepository quizQuestionRepository,
                                 QuizAnswerOptionRepository quizAnswerOptionRepository,
+                                QuizSubmissionRepository quizSubmissionRepository,
                                 Validator validator) {
         this.moduleContentService = moduleContentService;
         this.quizQuestionRepository = quizQuestionRepository;
         this.quizAnswerOptionRepository = quizAnswerOptionRepository;
+        this.quizSubmissionRepository = quizSubmissionRepository;
         this.validator = validator;
+    }
+
+    public Result<QuizSubmissionsResponse> findSubmissionsByQuizId(Long quizId, Long teacherId) {
+        Result<QuizSubmissionsResponse> result = new Result<>();
+
+        if (!requireId(quizId, "Quiz id is required.", result)
+                || !requireId(teacherId, "Teacher id is required.", result)) {
+            return result;
+        }
+
+        if (!moduleContentService.teacherOwnsQuiz(quizId, teacherId)) {
+            result.addMessage("Quiz not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        List<QuizSubmissionResponse> submissions = quizSubmissionRepository.findByQuizId(quizId)
+                .stream()
+                .map(QuizSubmissionResponse::new)
+                .toList();
+
+        result.setPayload(new QuizSubmissionsResponse(submissions));
+        return result;
     }
 
     public Result<List<QuizQuestion>> findQuestionsByQuizId(Long quizId, Long teacherId) {

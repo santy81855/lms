@@ -28,6 +28,23 @@ public class QuizAuthoringController {
         this.userService = userService;
     }
 
+    @GetMapping("/api/quizzes/{quizId}/submissions")
+    public ResponseEntity<?> findSubmissionsByQuizId(@PathVariable Long quizId,
+                                                     Authentication authentication) {
+        Optional<User> teacher = getCurrentTeacher(authentication);
+
+        if (teacher.isEmpty()) {
+            return unauthorizedOrForbidden(authentication);
+        }
+
+        Result<?> result = quizAuthoringService.findSubmissionsByQuizId(
+                quizId,
+                teacher.get().getId()
+        );
+
+        return resultToResponse(result);
+    }
+
     @GetMapping("/api/quizzes/{quizId}/questions")
     public ResponseEntity<?> findQuestionsByQuizId(@PathVariable Long quizId,
                                                    Authentication authentication) {
