@@ -3,6 +3,7 @@ package lms.server.models.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lms.server.models.QuizSubmission;
 import lms.server.models.QuizSubmissionStatus;
+import lms.server.models.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +17,15 @@ public class QuizSubmissionResponse {
 
     @JsonProperty("student_id")
     private Long studentId;
+
+    @JsonProperty("student_first_name")
+    private String studentFirstName;
+
+    @JsonProperty("student_last_name")
+    private String studentLastName;
+
+    @JsonProperty("student_name")
+    private String studentName;
 
     @JsonProperty("attempt_number")
     private Integer attemptNumber;
@@ -36,10 +46,17 @@ public class QuizSubmissionResponse {
     @JsonProperty("graded_at")
     private LocalDateTime gradedAt;
 
-    public QuizSubmissionResponse(QuizSubmission submission) {
+    public QuizSubmissionResponse(QuizSubmission submission, User student) {
         this.id = submission.getId();
         this.quizId = submission.getQuizId();
         this.studentId = submission.getStudentId();
+
+        if (student != null) {
+            this.studentFirstName = student.getFirstName();
+            this.studentLastName = student.getLastName();
+            this.studentName = student.getFirstName() + " " + student.getLastName();
+        }
+
         this.attemptNumber = submission.getAttemptNumber();
         this.status = submission.getStatus();
         this.score = submission.getScore();
@@ -59,6 +76,18 @@ public class QuizSubmissionResponse {
 
     public Long getStudentId() {
         return studentId;
+    }
+
+    public String getStudentFirstName() {
+        return studentFirstName;
+    }
+
+    public String getStudentLastName() {
+        return studentLastName;
+    }
+
+    public String getStudentName() {
+        return studentName;
     }
 
     public Integer getAttemptNumber() {
