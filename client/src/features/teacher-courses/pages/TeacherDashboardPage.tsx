@@ -83,7 +83,7 @@ export function TeacherDashboardPage() {
                 const status = course.status ?? "";
 
                 return (
-                    course.status.toLowerCase() === courseType.toLowerCase() || courseType.toLowerCase() === "all"
+                    status.toLowerCase() === courseType.toLowerCase() || courseType.toLowerCase() === "all"
                 );
             });
         setFilteredCourses([...filtered]);

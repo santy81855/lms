@@ -1,5 +1,4 @@
 
-import styles from "./CourseTypeSelect.module.css";
 import type { Dispatch, SetStateAction } from "react";
 
 type CourseTypeSelectProp = {
