@@ -9,6 +9,7 @@ import SearchBar from "../components/SearchBar";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./TeacherDashboardPage.module.css";
+import { CourseTypeSelect } from "../components/CourseTypeSelect";
 
 export function TeacherDashboardPage() {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -17,6 +18,7 @@ export function TeacherDashboardPage() {
     const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
     const [searchContent, setSearchContent] = useState("");
     const [sort, setSort] = useState("A-Z");
+    const [courseType, setCourseType] = useState("all");
 
     useEffect(() => {
         async function loadCourses() {
@@ -75,10 +77,18 @@ export function TeacherDashboardPage() {
 
                 return 0;
             }
-            );
+            )
+            // Filter by course status
+            .filter((course) => {
+                const status = course.status ?? "";
+
+                return (
+                    course.status.toLowerCase() === courseType.toLowerCase() || courseType.toLowerCase() === "all"
+                );
+            });
         setFilteredCourses([...filtered]);
-    }, [courses, searchContent, sort]
-);
+    }, [courses, searchContent, sort, courseType]
+    );
 
     return (
         <main className={pageStyles.page}>
@@ -110,13 +120,16 @@ export function TeacherDashboardPage() {
                     searchContent={searchContent}
                     setSearchContent={setSearchContent}
                 />
-                    
+
                 <select onChange={(e) => setSort(e.target.value)}>
                     <option value="A-Z">A-Z</option>
                     <option value="Newest">Newest</option>
                     <option value="Oldest">Oldest</option>
                 </select>
 
+                <CourseTypeSelect
+                    setCourseType={setCourseType}
+                />
                 <p className={pageStyles.description}>
                     View your courses and their current publishing status.
                 </p>
