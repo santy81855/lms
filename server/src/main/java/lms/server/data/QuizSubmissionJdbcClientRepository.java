@@ -127,4 +127,20 @@ public class QuizSubmissionJdbcClientRepository implements QuizSubmissionReposit
 
         return submission;
     }
+
+    @Override
+    public List<QuizSubmission> findByQuizId(Long quizId) {
+        final String sql = """
+            SELECT id, quiz_id, student_id, attempt_number, status,
+                   score, max_score, started_at, submitted_at, graded_at
+            FROM quiz_submissions
+            WHERE quiz_id = ?
+            ORDER BY student_id, attempt_number;
+            """;
+
+        return jdbcClient.sql(sql)
+                .param(quizId)
+                .query(new QuizSubmissionMapper())
+                .list();
+    }
 }
