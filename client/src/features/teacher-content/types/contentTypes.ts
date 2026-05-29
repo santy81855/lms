@@ -80,3 +80,22 @@ export type QuizFormData = {
     timeLimitMinutes?: number | null;
     attemptsAllowed: number;
 };
+
+export type QuizSubmission = {
+    id: number;
+    quiz_id: number;
+    student_id: number;
+    student_first_name: string | null;
+    student_last_name : string | null;
+    student_name : string | null;
+    attempt_number: number | null;
+    status: string | null;
+    score: number | null;
+    started_at: String | null;
+    submitted_at: String;
+    graded_at: String | null;
+}
+
+export type QuizSubmissionContainer = {
+    submissions: QuizSubmission[];
+}

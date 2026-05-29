@@ -8,6 +8,8 @@ import type {
     ModuleContentItem,
     Quiz,
     QuizFormData,
+    QuizSubmission,
+    QuizSubmissionContainer,
 } from "../types/contentTypes";
 
 function encodeOrder(order: number) {
@@ -193,4 +195,8 @@ export async function deleteQuiz(quizId: number) {
     await apiClient<null>(`/api/quizzes/${quizId}`, {
         method: "DELETE",
     });
+}
+
+export async function getQuizSubmissions(quizId: number) : Promise<QuizSubmissionContainer>{
+    return await apiClient<QuizSubmissionContainer>(`/api/quizzes/${quizId}/submissions`);
 }
