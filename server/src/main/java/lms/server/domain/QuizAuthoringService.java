@@ -12,13 +12,13 @@ import lms.server.models.dtos.QuizSubmissionsResponse;
 import lms.server.models.Quiz;
 import lms.server.models.QuizAnswerOption;
 import lms.server.models.QuizQuestion;
+import lms.server.models.QuizSubmission;
+import lms.server.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizAuthoringService {
@@ -57,10 +57,20 @@ public class QuizAuthoringService {
             return result;
         }
 
-        List<QuizSubmissionResponse> submissions = quizSubmissionRepository.findByQuizId(quizId)
+        List<QuizSubmission> quizSubmissions = quizSubmissionRepository.findByQuizId(quizId);
+
+        List<Long> studentIds = quizSubmissions.stream()
+                .map(QuizSubmission::getStudentId)
+                .distinct()
+                .toList();
+
+        Map<Long, User> studentsById = userRepository.findByIds(studentIds)
                 .stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        List<QuizSubmissionResponse> submissions = quizSubmissions.stream()
                 .map(submission -> {
-                    User student = userRepository.findById(submission.getStudentId()).orElse(null);
+                    User student = studentsById.get(submission.getStudentId());
                     return new QuizSubmissionResponse(submission, student);
                 })
                 .toList();

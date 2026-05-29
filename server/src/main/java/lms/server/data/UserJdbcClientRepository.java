@@ -110,4 +110,23 @@ public class UserJdbcClientRepository implements UserRepository {
 
         return user;
     }
+
+    @Override
+    public List<User> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        final String sql = """
+            SELECT id, first_name, last_name, email, password_hash,
+                   account_status, created_at, updated_at
+            FROM users
+            WHERE id IN (:ids);
+            """;
+
+        return jdbcClient.sql(sql)
+                .param("ids", ids)
+                .query(new UserMapper())
+                .list();
+    }
 }
