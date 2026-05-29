@@ -1,15 +1,15 @@
 import type { Dispatch, SetStateAction } from "react";
 import Select from "@/components/common/Select";
 
-type CourseTypeSelectProp = {
-    setCourseType: Dispatch<SetStateAction<string>>;
+type CourseSortSelectProp = {
+    setSort: Dispatch<SetStateAction<string>>;
 };
 
-export function CourseTypeSelect({ setCourseType }: CourseTypeSelectProp) {
-    const options = ["All", "Active", "Draft", "Archived"];
+export function CourseSortSelect({ setSort }: CourseSortSelectProp) {
+    const options = ["A-Z", "Newest", "Oldest"];
 
     const handleOptionClick = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setCourseType(e.currentTarget.value);
+        setSort(e.currentTarget.value);
     };
 
     return <Select options={options} onChange={handleOptionClick} />;

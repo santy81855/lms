@@ -11,6 +11,7 @@ import SearchBar from "../components/SearchBar";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./StudentDashboardPage.module.css";
+import { CourseSortSelect } from "@/components/common/CourseSortSelect";
 
 export function StudentDashboardPage() {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -29,22 +30,27 @@ export function StudentDashboardPage() {
     }
 
     useEffect(() => {
+        const filtered = courses
+            .filter((course) => {
+                if (course.title == null || course.title == undefined) {
+                    course.title = "";
+                }
+                if (course.subject == null || course.subject == undefined) {
+                    course.subject = "";
+                }
+                if (
+                    course.description == null ||
+                    course.description == undefined
+                ) {
+                    course.description = "";
+                }
 
-        const filtered = courses.filter(course => {
-            if (course.title == null || course.title == undefined) {
-                course.title = ""
-            }
-            if (course.subject == null || course.subject == undefined) {
-                course.subject = "";
-            }
-            if (course.description == null || course.description == undefined) {
-                course.description = "";
-            }
-
-            return course.title.includes(searchContent) ||
-                course.subject.includes(searchContent) ||
-                course.description.includes(searchContent)
-        })
+                return (
+                    course.title.includes(searchContent) ||
+                    course.subject.includes(searchContent) ||
+                    course.description.includes(searchContent)
+                );
+            })
             .sort((a, b) => {
                 if (a.updatedAt == null || b.updatedAt == undefined) {
                     a.updatedAt = "";
@@ -52,19 +58,25 @@ export function StudentDashboardPage() {
                 }
 
                 if (sort === "A-Z") {
-                    return a.title.localeCompare(b.title)
+                    return a.title.localeCompare(b.title);
                 }
                 if (sort === "Newest") {
-                    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+                    return (
+                        new Date(b.updatedAt).getTime() -
+                        new Date(a.updatedAt).getTime()
+                    );
                 }
                 if (sort === "Oldest") {
-                    return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+                    return (
+                        new Date(a.updatedAt).getTime() -
+                        new Date(b.updatedAt).getTime()
+                    );
                 }
                 return 0;
             });
 
         setFilteredCourses([...filtered]);
-    }, [searchContent, sort])
+    }, [courses, searchContent, sort]);
 
     useEffect(() => {
         let shouldIgnore = false;
@@ -85,7 +97,7 @@ export function StudentDashboardPage() {
                     setLoadErrorMessage(error.message);
                 } else {
                     setLoadErrorMessage(
-                        "Something went wrong while loading your courses."
+                        "Something went wrong while loading your courses.",
                     );
                 }
             })
@@ -115,7 +127,7 @@ export function StudentDashboardPage() {
                 setJoinErrorMessage(error.message);
             } else {
                 setJoinErrorMessage(
-                    "Something went wrong while joining the course."
+                    "Something went wrong while joining the course.",
                 );
             }
         } finally {
@@ -131,13 +143,12 @@ export function StudentDashboardPage() {
                     <h1>My courses</h1>
                 </div>
 
-                <SearchBar searchContent={searchContent} setSearchContent={setSearchContent} />
+                <SearchBar
+                    searchContent={searchContent}
+                    setSearchContent={setSearchContent}
+                />
 
-                <select onChange={(e) => SetSort(e.target.value)}>
-                    <option value="A-Z">A-Z</option>
-                    <option value="Newest">Newest</option>
-                    <option value="Oldest">Oldest</option>
-                </select>
+                <CourseSortSelect setSort={SetSort} />
 
                 <p className={pageStyles.description}>
                     Join a course with your teacher’s join code, then open your
@@ -178,25 +189,19 @@ export function StudentDashboardPage() {
                     {!isLoadingCourses &&
                         !loadErrorMessage &&
                         filteredCourses.length === 0 &&
-                        courses.length > 0 &&
-                        (
+                        courses.length > 0 && (
                             <div className={styles.emptyState}>
                                 <h3>No courses found</h3>
-                                <p>
-                                    search for something else
-                                </p>
+                                <p>search for something else</p>
                             </div>
                         )}
 
                     {!isLoadingCourses &&
                         !loadErrorMessage &&
-                        courses.length === 0 &&
-                        (
+                        courses.length === 0 && (
                             <div className={styles.emptyState}>
                                 <h3>No courses found</h3>
-                                <p>
-                                    sign up for your first course
-                                </p>
+                                <p>sign up for your first course</p>
                             </div>
                         )}
 

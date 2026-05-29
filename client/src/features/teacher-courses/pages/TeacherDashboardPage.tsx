@@ -10,6 +10,7 @@ import SearchBar from "../components/SearchBar";
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./TeacherDashboardPage.module.css";
 import { CourseTypeSelect } from "../components/CourseTypeSelect";
+import { CourseSortSelect } from "@/components/common/CourseSortSelect";
 
 export function TeacherDashboardPage() {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -31,7 +32,7 @@ export function TeacherDashboardPage() {
                     setErrorMessage(error.message);
                 } else {
                     setErrorMessage(
-                        "Something went wrong while loading courses."
+                        "Something went wrong while loading courses.",
                     );
                 }
             } finally {
@@ -43,7 +44,6 @@ export function TeacherDashboardPage() {
     }, [searchContent, sort]);
 
     useEffect(() => {
-
         const filtered = courses
             .filter((course) => {
                 const title = course.title ?? "";
@@ -60,35 +60,36 @@ export function TeacherDashboardPage() {
             })
             .sort((a, b) => {
                 if (sort === "A-Z") {
-                    return a.title.localeCompare(b.title)
+                    return a.title.localeCompare(b.title);
                 }
 
                 if (sort === "Newest") {
                     return (
-                        new Date(b.updatedAt ?? "").getTime() - new Date(a.updatedAt ?? "").getTime()
+                        new Date(b.updatedAt ?? "").getTime() -
+                        new Date(a.updatedAt ?? "").getTime()
                     );
                 }
 
                 if (sort === "Oldest") {
                     return (
-                        new Date(a.updatedAt ?? "").getTime() - new Date(b.updatedAt ?? "").getTime()
+                        new Date(a.updatedAt ?? "").getTime() -
+                        new Date(b.updatedAt ?? "").getTime()
                     );
                 }
 
                 return 0;
-            }
-            )
+            })
             // Filter by course status
             .filter((course) => {
                 const status = course.status ?? "";
 
                 return (
-                    status.toLowerCase() === courseType.toLowerCase() || courseType.toLowerCase() === "all"
+                    status.toLowerCase() === courseType.toLowerCase() ||
+                    courseType.toLowerCase() === "all"
                 );
             });
         setFilteredCourses([...filtered]);
-    }, [courses, searchContent, sort, courseType]
-    );
+    }, [courses, searchContent, sort, courseType]);
 
     return (
         <main className={pageStyles.page}>
@@ -115,21 +116,12 @@ export function TeacherDashboardPage() {
                         </Link>
                     </div>
                 </div>
-
                 <SearchBar
                     searchContent={searchContent}
                     setSearchContent={setSearchContent}
                 />
-
-                <select onChange={(e) => setSort(e.target.value)}>
-                    <option value="A-Z">A-Z</option>
-                    <option value="Newest">Newest</option>
-                    <option value="Oldest">Oldest</option>
-                </select>
-
-                <CourseTypeSelect
-                    setCourseType={setCourseType}
-                />
+                <CourseSortSelect setSort={setSort} />
+                <CourseTypeSelect setCourseType={setCourseType} />
                 <p className={pageStyles.description}>
                     View your courses and their current publishing status.
                 </p>
