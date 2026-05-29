@@ -121,12 +121,12 @@ export function TeacherDashboardPage() {
                     View your courses and their current publishing status.
                 </p>
 
-                <p>
-                    Total Courses: {courses.length} &nbsp; 
-                    Drafts: {courses.filter(course => course.status === "DRAFT").length} &nbsp;  
-                    Active: {courses.filter(course => course.status === "ACTIVE").length} &nbsp;
-                    Archived: {courses.filter(course => course.status === "ARCHIVED").length}
-                    </p>
+                <div className={styles.summaryRow}>
+                    <p className={styles.summaryRowItem}>Total Courses: {courses.length} </p>
+                    <p className={styles.summaryRowItem}>Drafts: {courses.filter(course => course.status === "DRAFT").length}  </p>
+                    <p className={styles.summaryRowItem}>Active: {courses.filter(course => course.status === "ACTIVE").length} </p>
+                    <p className={styles.summaryRowItem}>Archived: {courses.filter(course => course.status === "ARCHIVED").length}</p>
+                </div>
 
                 {isLoadingCourses && <p>Loading courses...</p>}
 
