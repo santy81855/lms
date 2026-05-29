@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+
 import { Link, useNavigate } from "react-router";
 
 import { isApiError } from "@/api";
@@ -10,11 +11,15 @@ import type { AiCourseGenerationFormData } from "../types/aiCourseGenerationType
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./AiCourseGenerationPage.module.css";
 
+import BackToTop from "@/components/common/BackToTopButton";
+
 export function AiCourseGenerationPage() {
     const navigate = useNavigate();
 
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
     async function handleGenerateCourse(data: AiCourseGenerationFormData) {
         setErrorMessage("");
@@ -40,7 +45,7 @@ export function AiCourseGenerationPage() {
     }
 
     return (
-        <main className={pageStyles.page}>
+        <main className={pageStyles.page} ref={scrollContainerRef}>
             <section className={pageStyles.content}>
                 <Link className={pageStyles.secondaryLink} to="/teacher">
                     Back to courses
@@ -72,6 +77,9 @@ export function AiCourseGenerationPage() {
                     onSubmit={handleGenerateCourse}
                 />
             </section>
+            <BackToTop
+                divRef={scrollContainerRef}
+            />
         </main>
     );
 }
