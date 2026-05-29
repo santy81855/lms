@@ -49,6 +49,20 @@ export function LessonForm({
         });
     }
 
+    function checkDisable() {
+
+        if (isSubmitting) {
+            return true;
+        }
+        if (initialValues.title !== title ||
+            initialValues.content !== content ||
+            initialValues.lessonOrder?.toString() !== lessonOrder ||
+            initialValues.estimatedMinutes?.toString() !== estimatedMinutes) {
+            return false;
+        }
+        return true;
+    }
+
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.fieldGroup}>
@@ -138,7 +152,7 @@ export function LessonForm({
             <button
                 className={styles.submitButton}
                 type="submit"
-                disabled={isSubmitting}
+                disabled={checkDisable()}
             >
                 {isSubmitting ? "Saving..." : submitLabel}
             </button>

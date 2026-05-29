@@ -41,6 +41,19 @@ export function ModuleForm({
         });
     }
 
+    function checkDisable() {
+
+        if (isSubmitting) {
+            return true;
+        }
+        if (initialValues.title !== title ||
+            initialValues.moduleOrder?.toString() !== moduleOrder ||
+            initialValues.description !== description) {
+            return false;
+        }
+        return true;
+    }
+
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.fieldGroup}>
@@ -107,7 +120,7 @@ export function ModuleForm({
             <button
                 className={styles.submitButton}
                 type="submit"
-                disabled={isSubmitting}
+                disabled={checkDisable()}
             >
                 {isSubmitting ? "Saving..." : submitLabel}
             </button>

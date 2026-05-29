@@ -52,6 +52,20 @@ export function CourseForm({
         });
     }
 
+    function checkDisable() {
+
+        if (isSubmitting) {
+            return true;
+        }
+        if (initialValues.title !== title ||
+            initialValues.subject !== subject ||
+            initialValues.gradeLevel !== gradeLevel ||
+            initialValues.description !== description) {
+            return false;
+        }
+        return true;
+    }
+
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.fieldGroup}>
@@ -133,9 +147,9 @@ export function CourseForm({
             )}
 
             <button
+                disabled={checkDisable()}
                 className={styles.submitButton}
                 type="submit"
-                disabled={isSubmitting}
             >
                 {isSubmitting ? "Saving..." : submitLabel}
             </button>
