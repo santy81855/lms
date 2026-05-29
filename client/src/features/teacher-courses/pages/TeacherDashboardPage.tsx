@@ -44,17 +44,7 @@ export function TeacherDashboardPage() {
 
         const filtered = courses
             .filter((course) => {
-                const title = course.title ?? "";
-                const subject = course.subject ?? "";
-                const description = course.description ?? "";
-
-                const search = searchContent.toLowerCase();
-
-                return (
-                    title.toLowerCase().includes(search) ||
-                    subject.toLowerCase().includes(search) ||
-                    description.toLowerCase().includes(search)
-                );
+                return course.matchesSearch(searchContent);
             })
             .sort((a, b) => {
                 if (sort === "A-Z") {
