@@ -20,6 +20,7 @@ export function TeacherDashboardPage() {
     const [searchContent, setSearchContent] = useState("");
     const [sort, setSort] = useState("A-Z");
     const [courseType, setCourseType] = useState("all");
+    const ALL = "all";
 
     useEffect(() => {
         async function loadCourses() {
@@ -85,7 +86,7 @@ export function TeacherDashboardPage() {
 
                 return (
                     status.toLowerCase() === courseType.toLowerCase() ||
-                    courseType.toLowerCase() === "all"
+                    courseType.toLowerCase() === ALL
                 );
             });
         setFilteredCourses([...filtered]);
