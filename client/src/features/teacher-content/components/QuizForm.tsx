@@ -57,6 +57,7 @@ export function QuizForm({
                     ? null
                     : Number(timeLimitMinutes),
             attemptsAllowed: Number(attemptsAllowed),
+            feedbackType: feedbackType,
         });
     }
 
