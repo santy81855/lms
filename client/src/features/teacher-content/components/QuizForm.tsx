@@ -42,6 +42,7 @@ export function QuizForm({
     const [attemptsAllowed, setAttemptsAllowed] = useState(
         initialValues.attemptsAllowed.toString()
     );
+    const [feedbackType, setFeedbackType] = useState("score");
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -57,6 +58,25 @@ export function QuizForm({
                     : Number(timeLimitMinutes),
             attemptsAllowed: Number(attemptsAllowed),
         });
+    }
+
+    function getQuizFeedbackTooltip() : string{
+        const scoreFeedback : string = "show the students score when they submit the quiz in the form: score / maximum score."
+        const noFeedback : string = "don't show the students any feedback when they submit the quiz.";
+        const lessonReference : string = "Show the students what questions they got right and wrong, and provide a link to the associated lesson module."
+        const AIOverview: string = "Show the students all submitted questions with the correct answers.  Provide feedback on incorrect responses with an AI overview."
+
+        switch (feedbackType){
+            case "score":
+                return scoreFeedback;
+            case "noFeedback":
+                return noFeedback;
+            case "lessonReference":
+                return lessonReference;
+            case "AIOverview":
+                return AIOverview;
+        }
+        return "ERROR: could not identify tooltip";
     }
 
     return (
@@ -180,6 +200,29 @@ export function QuizForm({
                         }
                         required
                     />
+                </div>
+
+                <div className="styles.fieldGroup">
+                    <label className={styles.label} htmlFor="feedbackType">
+                        Quiz Feedback
+                    </label>
+
+                    <select 
+                        className={styles.input} 
+                        onChange={(e) => setFeedbackType(e.target.value)}
+                        >
+                        
+                        <option value="score">Score (default)</option>
+                        <option value="noFeedback">No Feedback</option>
+                        <option value="lessonReference">Lesson Reference</option>
+                        <option value="AIOverview">AI Overview</option>
+                    </select>
+
+                    <p className={styles.helpText}>
+                        {
+                            getQuizFeedbackTooltip()
+                        }
+                    </p>
                 </div>
             </div>
 
