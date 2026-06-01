@@ -423,6 +423,8 @@ CREATE TABLE IF NOT EXISTS quizzes
     AUTO_INCREMENT
     PRIMARY
     KEY,
+    
+    feedback_type VARCHAR(30) NOT NULL DEFAULT 'SCORE',
 
     module_id
     BIGINT
@@ -1070,3 +1072,7 @@ CREATE TABLE IF NOT EXISTS activity_logs
 )
     ON DELETE SET NULL
     );
+    
+
+-- Run if you don't want to reset db otherwise delete this and rerun file.
+ALTER TABLE quizzes ADD COLUMN feedback_type VARCHAR(30) NOT NULL DEFAULT 'SCORE';

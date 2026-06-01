@@ -41,6 +41,9 @@ public class Quiz {
     @NotNull(message = "Quiz status is required.")
     private VisibilityStatus status;
 
+    @NotNull(message = "Quiz feedback type is required.")
+    private QuizFeedbackType feedbackType;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime publishedAt;
@@ -139,6 +142,14 @@ public class Quiz {
 
     public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public QuizFeedbackType getFeedbackType() {
+        return feedbackType;
+    }
+
+    public void setFeedbackType(QuizFeedbackType feedbackType) {
+        this.feedbackType = feedbackType;
     }
 
     @Override

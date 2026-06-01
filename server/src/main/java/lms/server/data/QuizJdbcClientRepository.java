@@ -17,17 +17,20 @@ public class QuizJdbcClientRepository implements QuizRepository {
 
     private final JdbcClient jdbcClient;
 
+    private static final String SELECT = """
+            SELECT id, module_id, title, description, quiz_order,
+                   max_points, time_limit_minutes, attempts_allowed,
+                   status, feedback_type, created_at, updated_at, published_at
+            FROM quizzes       
+            """;
+
     public QuizJdbcClientRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
     @Override
     public Optional<Quiz> findById(Long id) {
-        final String sql = """
-                SELECT id, module_id, title, description, quiz_order,
-                       max_points, time_limit_minutes, attempts_allowed,
-                       status, created_at, updated_at, published_at
-                FROM quizzes
+        final String sql = SELECT + """
                 WHERE id = ?;
                 """;
 
@@ -39,11 +42,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
 
     @Override
     public Optional<Quiz> findByIdAndModuleId(Long quizId, Long moduleId) {
-        final String sql = """
-                SELECT id, module_id, title, description, quiz_order,
-                       max_points, time_limit_minutes, attempts_allowed,
-                       status, created_at, updated_at, published_at
-                FROM quizzes
+        final String sql = SELECT + """
                 WHERE id = ?
                   AND module_id = ?;
                 """;
@@ -57,11 +56,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
 
     @Override
     public List<Quiz> findByModuleId(Long moduleId) {
-        final String sql = """
-                SELECT id, module_id, title, description, quiz_order,
-                       max_points, time_limit_minutes, attempts_allowed,
-                       status, created_at, updated_at, published_at
-                FROM quizzes
+        final String sql = SELECT + """
                 WHERE module_id = ?
                 ORDER BY quiz_order;
                 """;
@@ -83,9 +78,10 @@ public class QuizJdbcClientRepository implements QuizRepository {
                     max_points,
                     time_limit_minutes,
                     attempts_allowed,
-                    status
+                    status,
+                    feedback_type
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -99,6 +95,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quiz.getTimeLimitMinutes())
                 .param(quiz.getAttemptsAllowed())
                 .param(quiz.getStatus().name())
+                .param(quiz.getFeedbackType().name())
                 .update(keyHolder, "id");
 
         if (rowsAffected <= 0) {
