@@ -11,6 +11,7 @@ const defaultValues: QuizFormData = {
     maxPoints: 10,
     timeLimitMinutes: null,
     attemptsAllowed: 1,
+    feedbackType: "score",
 };
 
 type QuizFormProps = {
