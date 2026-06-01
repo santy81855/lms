@@ -12,19 +12,25 @@ export function getStudentQuizForTaking(quizId: number) {
 
 export function submitStudentQuiz(
     quizId: number,
-    data: StudentQuizSubmitRequest
+    data: StudentQuizSubmitRequest,
 ) {
     return apiClient<StudentQuizResult>(
         `/api/student/quizzes/${quizId}/submit`,
         {
             method: "POST",
             body: data,
-        }
+        },
     );
 }
 
 export function getLatestStudentQuizResult(quizId: number) {
     return apiClient<StudentQuizResult>(
-        `/api/student/quizzes/${quizId}/latest-result`
+        `/api/student/quizzes/${quizId}/latest-result`,
+    );
+}
+
+export function getAllStudentQuizResults(quizId: number) {
+    return apiClient<StudentQuizResult[]>(
+        `/api/student/quizzes/${quizId}/all-results`,
     );
 }

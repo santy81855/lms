@@ -48,4 +48,5 @@ export type StudentQuizResult = {
     attemptNumber: number;
     score: number;
     maxScore: number;
+    submittedAt?: string | Date;
 };
