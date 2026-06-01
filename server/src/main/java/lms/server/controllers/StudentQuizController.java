@@ -68,6 +68,23 @@ public class StudentQuizController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result.getPayload());
     }
 
+    @GetMapping("/quizzes/{quizId}/all-results")
+    public ResponseEntity<?> findAllResults(@PathVariable Long quizId,
+                                              Authentication authentication) {
+        Optional<User> student = getCurrentStudent(authentication);
+
+        if (student.isEmpty()) {
+            return unauthorizedOrForbidden(authentication);
+        }
+
+        Result<?> result = studentQuizService.findAllResults(
+                quizId,
+                student.get().getId()
+        );
+
+        return resultToResponse(result);
+    }
+
     @GetMapping("/quizzes/{quizId}/latest-result")
     public ResponseEntity<?> findLatestResult(@PathVariable Long quizId,
                                               Authentication authentication) {
