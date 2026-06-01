@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import type {
     QuestionType,
@@ -46,7 +46,12 @@ export function QuizQuestionForm({
         initialValues.questionOrder?.toString() ?? ""
     );
     const [points, setPoints] = useState(initialValues.points.toString());
-    const [explanation, setExplanation] = useState(initialValues.explanation);
+    const [lessons, setLessons] = useState([]);
+
+    // load the lessons that a teacher can link to this quiz question
+    useEffect(() => {
+
+    }, [])
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -57,7 +62,16 @@ export function QuizQuestionForm({
             questionOrder:
                 questionOrder.trim() === "" ? null : Number(questionOrder),
             points: Number(points),
-            explanation,
+            // teacher-generated explanations are not yet implemented, but the
+            // project  already stubs out the data types, HTML, and
+            // helper methods to use them.  While the current backlog 
+            // does not include teacher-generated explanations, it is reasonable 
+            // to assume it may in the near future.  As such, I will leave in
+            // the explanation in this form submission, as removing it would
+            // also require refactoring typescript data types and the backend to omit this
+            // data -- which would subsequently need to be refactored back in
+            // when we decide to implement it.
+            explanation: "",
         });
     }
 
@@ -152,19 +166,13 @@ export function QuizQuestionForm({
 
             <div className={styles.fieldGroup}>
                 <label className={styles.label} htmlFor="explanation">
-                    Explanation
+                    Link to a lesson
                 </label>
 
-                <textarea
-                    className={styles.textarea}
-                    id="explanation"
-                    name="explanation"
-                    value={explanation}
-                    disabled={isSubmitting}
-                    onChange={(event) => setExplanation(event.target.value)}
-                    rows={4}
-                    placeholder="Optional feedback or explanation shown after answering."
-                />
+                <select className={styles.fieldGroup}>
+                    <option className={styles.label}>option1</option>
+
+                </select>
             </div>
 
             {errorMessage && (

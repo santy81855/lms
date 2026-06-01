@@ -103,3 +103,7 @@ export async function deleteQuizAnswerOption(optionId: number) {
         method: "DELETE",
     });
 }
+
+export async function fetchLessons(courseId: id){
+    
+}
