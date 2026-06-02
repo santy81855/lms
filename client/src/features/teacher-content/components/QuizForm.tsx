@@ -14,7 +14,7 @@ const defaultValues: QuizFormData = {
     feedbackType: "score",
 };
 
-type tooltip = {key: string, value: string};
+type feedbackTooltip = {key: string, tooltip: string, dropdownText: string};
 
 type QuizFormProps = {
     submitLabel: string;
@@ -64,22 +64,26 @@ export function QuizForm({
         });
     }
 
-    const tooltips: tooltip[] = [
+    const feedbackOptions: feedbackTooltip[] = [
             {
                 key: "score",
-                value: "show the students score when they submite the quiz in the form: score / maximum score."
+                tooltip: "show the students score when they submit the quiz in the form: score / maximum score.",
+                dropdownText: "score (default)"
             },
             {
                 key: "noFeedback",
-                value: "don't show the students any feedback when they submit the quiz."
+                tooltip: "don't show the students any feedback when they submit the quiz.",
+                dropdownText: "No Feedback"
             },
             {
                 key: "lessonReference",
-                value: "Show the students what questions they got right and wrong, and provide a link to the associated lesson module."
+                tooltip: "Show the students what questions they got right and wrong, and provide a link to the associated lesson module.",
+                dropdownText: "Reference Course Content"
             }, 
             {
                 key: "aiOverview",
-                value: "Show the students all submitted questions with the correct answers.  Provide feedback on incorrect responses with an AI overview."
+                tooltip: "Show the students all submitted questions with the correct answers.  Provide feedback on incorrect responses with an AI overview.",
+                dropdownText: "AI Overview"
             }
         ];
 
@@ -215,16 +219,18 @@ export function QuizForm({
                         className={styles.input} 
                         onChange={(e) => setFeedbackType(e.target.value)}
                         >
-                        
-                        <option value="score">Score (default)</option>
-                        <option value="noFeedback">No Feedback</option>
-                        <option value="lessonReference">Lesson Reference</option>
-                        <option value="aiOverview">AI Overview</option>
+                        {feedbackOptions.map(tooltip => {
+                            return (
+                            <option value={tooltip.key}>
+                                {tooltip.dropdownText}
+                            </option>)
+                        })}
+
                     </select>
 
                     <p className={styles.helpText}>
                         {
-                            tooltips.find(t => t.key === feedbackType)?.value
+                            feedbackOptions.find(t => t.key === feedbackType)?.tooltip
                         }
                     </p>
                 </div>
