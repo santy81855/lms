@@ -12,7 +12,6 @@ export function QuizResultCard({ result }: QuizResultCardProps) {
         result.maxScore === 0
             ? 0
             : Math.round((result.score / result.maxScore) * 100);
-    console.log(result);
     return (
         <article className={styles.card}>
             <div className={styles.titleContainer}>

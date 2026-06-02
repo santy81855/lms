@@ -12,7 +12,7 @@ export function getStudentQuizForTaking(quizId: number) {
 
 export function submitStudentQuiz(
     quizId: number,
-    data: StudentQuizSubmitRequest,
+    data: StudentQuizSubmitRequest
 ) {
     return apiClient<StudentQuizResult>(
         `/api/student/quizzes/${quizId}/submit`,
