@@ -86,16 +86,16 @@ export type QuizSubmission = {
     quiz_id: number;
     student_id: number;
     student_first_name: string | null;
-    student_last_name : string | null;
-    student_name : string | null;
+    student_last_name: string | null;
+    student_name: string | null;
     attempt_number: number | null;
     status: string | null;
     score: number | null;
-    started_at: String | null;
-    submitted_at: String;
-    graded_at: String | null;
-}
+    started_at: string | null;
+    submitted_at: string;
+    graded_at: string | null;
+};
 
 export type QuizSubmissionContainer = {
     submissions: QuizSubmission[];
-}
+};
