@@ -14,14 +14,32 @@ public class QuizFeedbackQuizResponse {
     private Integer timeLimitMinutes;
     private Integer attemptsAllowed;
 
-    public QuizFeedbackQuizResponse(Quiz quiz) {
-        this.id = quiz.getId();
-        this.title = quiz.getTitle();
-        this.description = quiz.getDescription();
-        this.quizOrder = quiz.getQuizOrder();
-        this.maxPoints = quiz.getMaxPoints();
-        this.timeLimitMinutes = quiz.getTimeLimitMinutes();
-        this.attemptsAllowed = quiz.getAttemptsAllowed();
+    private QuizFeedbackQuizResponse(Long id,
+                                     String title,
+                                     String description,
+                                     Integer quizOrder,
+                                     BigDecimal maxPoints,
+                                     Integer timeLimitMinutes,
+                                     Integer attemptsAllowed) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.quizOrder = quizOrder;
+        this.maxPoints = maxPoints;
+        this.timeLimitMinutes = timeLimitMinutes;
+        this.attemptsAllowed = attemptsAllowed;
+    }
+
+    public static QuizFeedbackQuizResponse from(Quiz quiz) {
+        return new QuizFeedbackQuizResponse(
+                quiz.getId(),
+                quiz.getTitle(),
+                quiz.getDescription(),
+                quiz.getQuizOrder(),
+                quiz.getMaxPoints(),
+                quiz.getTimeLimitMinutes(),
+                quiz.getAttemptsAllowed()
+        );
     }
 
     public Long getId() {

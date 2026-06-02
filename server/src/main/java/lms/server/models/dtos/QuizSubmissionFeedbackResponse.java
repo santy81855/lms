@@ -21,7 +21,7 @@ public class QuizSubmissionFeedbackResponse {
                                           BigDecimal maxScore,
                                           List<QuizSubmissionFeedbackItem> content) {
         this.type = type;
-        this.quiz = new QuizFeedbackQuizResponse(quiz);
+        this.quiz = QuizFeedbackQuizResponse.from(quiz);
         this.score = score;
         this.maxScore = maxScore;
         this.content = content;
