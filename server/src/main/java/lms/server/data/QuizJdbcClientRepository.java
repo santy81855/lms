@@ -1,7 +1,9 @@
 package lms.server.data;
 
 import lms.server.data.mappers.QuizMapper;
+import lms.server.models.FeedbackType;
 import lms.server.models.Quiz;
+import lms.server.models.QuizFeedbackType;
 import lms.server.models.VisibilityStatus;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -16,18 +18,25 @@ import java.util.Optional;
 public class QuizJdbcClientRepository implements QuizRepository {
 
     private final JdbcClient jdbcClient;
+    private final FeedbackTypeRepository feedbackTypeRepository;
 
-    public QuizJdbcClientRepository(JdbcClient jdbcClient) {
+    private static final String SELECT = """
+            SELECT q.id, q.module_id, q.title, q.description, q.quiz_order,
+                    q.max_points, q.time_limit_minutes, q.attempts_allowed,
+                    q.status, q.feedback_type_id, ft.code AS feedback_type,
+                    q.created_at, q.updated_at, q.published_at
+            FROM quizzes q
+            INNER JOIN feedback_type ft ON q.feedback_type_id = ft.id
+            """;
+
+    public QuizJdbcClientRepository(JdbcClient jdbcClient, FeedbackTypeRepository feedbackTypeRepository) {
         this.jdbcClient = jdbcClient;
+        this.feedbackTypeRepository = feedbackTypeRepository;
     }
 
     @Override
     public Optional<Quiz> findById(Long id) {
-        final String sql = """
-                SELECT id, module_id, title, description, quiz_order,
-                       max_points, time_limit_minutes, attempts_allowed,
-                       status, created_at, updated_at, published_at
-                FROM quizzes
+        final String sql = SELECT + """
                 WHERE id = ?;
                 """;
 
@@ -39,11 +48,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
 
     @Override
     public Optional<Quiz> findByIdAndModuleId(Long quizId, Long moduleId) {
-        final String sql = """
-                SELECT id, module_id, title, description, quiz_order,
-                       max_points, time_limit_minutes, attempts_allowed,
-                       status, created_at, updated_at, published_at
-                FROM quizzes
+        final String sql = SELECT + """
                 WHERE id = ?
                   AND module_id = ?;
                 """;
@@ -57,11 +62,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
 
     @Override
     public List<Quiz> findByModuleId(Long moduleId) {
-        final String sql = """
-                SELECT id, module_id, title, description, quiz_order,
-                       max_points, time_limit_minutes, attempts_allowed,
-                       status, created_at, updated_at, published_at
-                FROM quizzes
+        final String sql = SELECT + """
                 WHERE module_id = ?
                 ORDER BY quiz_order;
                 """;
@@ -83,10 +84,13 @@ public class QuizJdbcClientRepository implements QuizRepository {
                     max_points,
                     time_limit_minutes,
                     attempts_allowed,
-                    status
+                    status,
+                    feedback_type_id
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """;
+
+        Long feedbackTypeId = findFeedbackTypeId(quiz.getFeedbackTypeCodeOrDefault());
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -99,6 +103,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quiz.getTimeLimitMinutes())
                 .param(quiz.getAttemptsAllowed())
                 .param(quiz.getStatus().name())
+                .param(feedbackTypeId)
                 .update(keyHolder, "id");
 
         if (rowsAffected <= 0) {
@@ -106,6 +111,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
         }
 
         quiz.setId(keyHolder.getKey().longValue());
+        quiz.setFeedbackTypeId(feedbackTypeId);
 
         return quiz;
     }
@@ -119,9 +125,12 @@ public class QuizJdbcClientRepository implements QuizRepository {
                     max_points = ?,
                     time_limit_minutes = ?,
                     attempts_allowed = ?
+                    feedback_type_id = ?
                 WHERE id = ?
                   AND module_id = ?;
                 """;
+
+        Long feedbackTypeId = findFeedbackTypeId(quiz.getFeedbackTypeCodeOrDefault());
 
         return jdbcClient.sql(sql)
                 .param(quiz.getTitle())
@@ -129,6 +138,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quiz.getMaxPoints())
                 .param(quiz.getTimeLimitMinutes())
                 .param(quiz.getAttemptsAllowed())
+                .param(feedbackTypeId)
                 .param(quiz.getId())
                 .param(quiz.getModuleId())
                 .update() > 0;
@@ -191,5 +201,13 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quizId)
                 .param(moduleId)
                 .update() > 0;
+    }
+
+    private Long findFeedbackTypeId(String feedbackTypeCode) {
+        return feedbackTypeRepository.findByCode(feedbackTypeCode)
+                .map(FeedbackType::getId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Feedback type is missing from the database: " + feedbackTypeCode
+                ));
     }
 }

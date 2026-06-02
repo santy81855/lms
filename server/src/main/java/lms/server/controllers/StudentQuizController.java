@@ -85,6 +85,25 @@ public class StudentQuizController {
         return resultToResponse(result);
     }
 
+    @GetMapping("/quizzes/{quizId}/submissions/{submissionId}/feedback")
+    public ResponseEntity<?> findSubmissionFeedback(@PathVariable Long quizId,
+                                                    @PathVariable Long submissionId,
+                                                    Authentication authentication) {
+        Optional<User> student = getCurrentStudent(authentication);
+
+        if (student.isEmpty()) {
+            return unauthorizedOrForbidden(authentication);
+        }
+
+        Result<?> result = studentQuizService.findSubmissionFeedback(
+                quizId,
+                submissionId,
+                student.get().getId()
+        );
+
+        return resultToResponse(result);
+    }
+
     private Optional<User> getCurrentStudent(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();
