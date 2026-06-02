@@ -152,6 +152,10 @@ public class Quiz {
         this.feedbackType = feedbackType;
     }
 
+    public QuizFeedbackType getFeedbackTypeOrDefault() {
+        return feedbackType == null ? QuizFeedbackType.SCORE : feedbackType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

@@ -27,7 +27,7 @@ public class QuizSubmissionFeedbackResponse {
         this.content = content;
     }
 
-    public static QuizSubmissionFeedbackResponse noContent(Quiz quiz) {
+    public static QuizSubmissionFeedbackResponse noFeedback(Quiz quiz) {
         return new QuizSubmissionFeedbackResponse(
                 QuizFeedbackType.NO_FEEDBACK,
                 quiz,
@@ -47,7 +47,7 @@ public class QuizSubmissionFeedbackResponse {
         );
     }
 
-    public static QuizSubmissionFeedbackResponse moduleRefPlaceholder(Quiz quiz, QuizSubmission submission) {
+    public static QuizSubmissionFeedbackResponse lessonReferencePlaceholder(Quiz quiz, QuizSubmission submission) {
         return new QuizSubmissionFeedbackResponse(
                 QuizFeedbackType.LESSON_REFERENCE,
                 quiz,
@@ -65,6 +65,17 @@ public class QuizSubmissionFeedbackResponse {
                 submission.getMaxScore(),
                 List.of()
         );
+    }
+
+    public static QuizSubmissionFeedbackResponse from(Quiz quiz, QuizSubmission submission) {
+        QuizFeedbackType feedbackType = quiz.getFeedbackTypeOrDefault();
+
+        return switch (feedbackType) {
+            case NO_FEEDBACK -> noFeedback(quiz);
+            case SCORE -> scoreOnly(quiz, submission);
+            case LESSON_REFERENCE -> lessonReferencePlaceholder(quiz, submission);
+            case AI_OVERVIEW -> aiOverviewPlaceholder(quiz, submission);
+        };
     }
 
     public QuizFeedbackType getType() {

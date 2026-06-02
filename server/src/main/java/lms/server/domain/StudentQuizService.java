@@ -348,16 +348,7 @@ public class StudentQuizService {
             return result;
         }
 
-        QuizFeedbackType feedbackType = quiz.getFeedbackType() == null
-                ? QuizFeedbackType.SCORE
-                : quiz.getFeedbackType();
-
-        QuizSubmissionFeedbackResponse response = switch (feedbackType) {
-            case NO_FEEDBACK -> QuizSubmissionFeedbackResponse.noContent(quiz);
-            case SCORE -> QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission);
-            case LESSON_REFERENCE -> QuizSubmissionFeedbackResponse.moduleRefPlaceholder(quiz, submission);
-            case AI_OVERVIEW -> QuizSubmissionFeedbackResponse.aiOverviewPlaceholder(quiz, submission);
-        };
+        QuizSubmissionFeedbackResponse response = QuizSubmissionFeedbackResponse.from(quiz, submission);
 
         result.setPayload(response);
         return result;
