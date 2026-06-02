@@ -1,4 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useParams } from "react-router";
+import { fetchLessons } from "../api/quizAuthoringApi";
+import type { Lesson } from "@/features/teacher-content";
 
 import type {
     QuestionType,
@@ -19,6 +22,7 @@ const defaultValues: QuizQuestionFormData = {
     questionOrder: null,
     points: 1,
     explanation: "",
+    associatedLessonId: 0
 };
 
 type QuizQuestionFormProps = {
@@ -46,10 +50,22 @@ export function QuizQuestionForm({
         initialValues.questionOrder?.toString() ?? ""
     );
     const [points, setPoints] = useState(initialValues.points.toString());
-    const [lessons, setLessons] = useState([]);
+    const [lessons, setLessons] = useState<Lesson[]>([]);
+    const [associatedLesson, setAssociatedLesson] = useState(0);
+    const [explanation, setExplanation] = useState("");
+    const { moduleId } = useParams();
 
     // load the lessons that a teacher can link to this quiz question
     useEffect(() => {
+        if(moduleId == undefined){
+            return;
+        }
+
+        const setupLessons = async () => {
+            const response = await fetchLessons(moduleId);
+            setLessons(response);
+        }
+        setupLessons();
 
     }, [])
 
@@ -62,16 +78,8 @@ export function QuizQuestionForm({
             questionOrder:
                 questionOrder.trim() === "" ? null : Number(questionOrder),
             points: Number(points),
-            // teacher-generated explanations are not yet implemented, but the
-            // project  already stubs out the data types, HTML, and
-            // helper methods to use them.  While the current backlog 
-            // does not include teacher-generated explanations, it is reasonable 
-            // to assume it may in the near future.  As such, I will leave in
-            // the explanation in this form submission, as removing it would
-            // also require refactoring typescript data types and the backend to omit this
-            // data -- which would subsequently need to be refactored back in
-            // when we decide to implement it.
-            explanation: "",
+            explanation,
+            associatedLessonId: associatedLesson,
         });
     }
 
@@ -165,14 +173,42 @@ export function QuizQuestionForm({
             </div>
 
             <div className={styles.fieldGroup}>
+                <label htmlFor="explanation" className={styles.label}>explanation</label>
+                <textarea
+                    className={styles.textarea}
+                    id="explanation"
+                    name="explanation"
+                    value={explanation}
+                    disabled={isSubmitting}
+                    onChange={(event) => setExplanation(event.target.value)}
+                    rows={4}
+                    placeholder="Optional feedback or explanation shown after answering."
+                />
+            </div>
+
+            <div className={styles.fieldGroup}>
                 <label className={styles.label} htmlFor="explanation">
                     Link to a lesson
                 </label>
 
-                <select className={styles.fieldGroup}>
-                    <option className={styles.label}>option1</option>
+                <select 
+                    className={styles.input}
+                    onChange={(e) => setAssociatedLesson(parseInt(e.target.value))}
+                    value={associatedLesson}
+                    >
+                    <option value={0} >none</option>
+                    {lessons.map(lesson => {
+                        return (
+                            <option key={lesson.id} value={lesson.id}>
+                                {lesson.title}
+                            </option>
+                        );
+                    })}
 
                 </select>
+                <p className={styles.helpText}>If linking to lessons is enabled, this will show the student
+                    the relevant learning materials if they get this question wrong
+                </p>
             </div>
 
             {errorMessage && (

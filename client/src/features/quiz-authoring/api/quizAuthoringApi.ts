@@ -105,6 +105,6 @@ export async function deleteQuizAnswerOption(optionId: number) {
     });
 }
 
-export async function fetchLessons(courseId: number){
-    await apiClient<Lesson>(`/api/`);
+export function fetchLessons(courseId: string){
+    return apiClient<Lesson[]>(`/api/modules/${courseId}/lessons`);
 }
