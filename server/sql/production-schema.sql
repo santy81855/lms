@@ -429,7 +429,7 @@ CREATE TABLE IF NOT EXISTS quizzes
     NOT
     NULL,
     
-    feedback_type_id INT NOT NULL DEFAULT 2,
+    feedback_type_id INT NOT NULL,
 	CONSTRAINT fk_quizzes_feedback_type
     	FOREIGN KEY (feedback_type_id)
     	REFERENCES feedback_type(id),

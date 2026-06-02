@@ -1,6 +1,7 @@
 package lms.server.data;
 
 import lms.server.data.mappers.QuizMapper;
+import lms.server.models.FeedbackType;
 import lms.server.models.Quiz;
 import lms.server.models.QuizFeedbackType;
 import lms.server.models.VisibilityStatus;
@@ -17,18 +18,20 @@ import java.util.Optional;
 public class QuizJdbcClientRepository implements QuizRepository {
 
     private final JdbcClient jdbcClient;
+    private final FeedbackTypeRepository feedbackTypeRepository;
 
     private static final String SELECT = """
             SELECT q.id, q.module_id, q.title, q.description, q.quiz_order,
                     q.max_points, q.time_limit_minutes, q.attempts_allowed,
-                    q.status, ft.code AS feedback_type,
+                    q.status, q.feedback_type_id, ft.code AS feedback_type,
                     q.created_at, q.updated_at, q.published_at
             FROM quizzes q
             INNER JOIN feedback_type ft ON q.feedback_type_id = ft.id
             """;
 
-    public QuizJdbcClientRepository(JdbcClient jdbcClient) {
+    public QuizJdbcClientRepository(JdbcClient jdbcClient, FeedbackTypeRepository feedbackTypeRepository) {
         this.jdbcClient = jdbcClient;
+        this.feedbackTypeRepository = feedbackTypeRepository;
     }
 
     @Override
@@ -87,6 +90,8 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """;
 
+        Long feedbackTypeId = findFeedbackTypeId(quiz.getFeedbackTypeCodeOrDefault());
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         int rowsAffected = jdbcClient.sql(sql)
@@ -98,7 +103,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quiz.getTimeLimitMinutes())
                 .param(quiz.getAttemptsAllowed())
                 .param(quiz.getStatus().name())
-                .param(feedbackTypeId(quiz.getFeedbackType()))
+                .param(feedbackTypeId)
                 .update(keyHolder, "id");
 
         if (rowsAffected <= 0) {
@@ -106,6 +111,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
         }
 
         quiz.setId(keyHolder.getKey().longValue());
+        quiz.setFeedbackTypeId(feedbackTypeId);
 
         return quiz;
     }
@@ -119,9 +125,12 @@ public class QuizJdbcClientRepository implements QuizRepository {
                     max_points = ?,
                     time_limit_minutes = ?,
                     attempts_allowed = ?
+                    feedback_type_id = ?
                 WHERE id = ?
                   AND module_id = ?;
                 """;
+
+        Long feedbackTypeId = findFeedbackTypeId(quiz.getFeedbackTypeCodeOrDefault());
 
         return jdbcClient.sql(sql)
                 .param(quiz.getTitle())
@@ -129,6 +138,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quiz.getMaxPoints())
                 .param(quiz.getTimeLimitMinutes())
                 .param(quiz.getAttemptsAllowed())
+                .param(feedbackTypeId)
                 .param(quiz.getId())
                 .param(quiz.getModuleId())
                 .update() > 0;
@@ -193,16 +203,11 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .update() > 0;
     }
 
-    private int feedbackTypeId(QuizFeedbackType feedbackType) {
-        if (feedbackType == null) {
-            return 2; // SCORE
-        }
-
-        return switch (feedbackType) {
-            case NO_FEEDBACK -> 1;
-            case SCORE -> 2;
-            case LESSON_REFERENCE -> 3;
-            case AI_OVERVIEW -> 4;
-        };
+    private Long findFeedbackTypeId(String feedbackTypeCode) {
+        return feedbackTypeRepository.findByCode(feedbackTypeCode)
+                .map(FeedbackType::getId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Feedback type is missing from the database: " + feedbackTypeCode
+                ));
     }
 }

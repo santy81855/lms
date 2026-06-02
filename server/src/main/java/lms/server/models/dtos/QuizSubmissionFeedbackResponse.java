@@ -68,13 +68,12 @@ public class QuizSubmissionFeedbackResponse {
     }
 
     public static QuizSubmissionFeedbackResponse from(Quiz quiz, QuizSubmission submission) {
-        QuizFeedbackType feedbackType = quiz.getFeedbackTypeOrDefault();
-
-        return switch (feedbackType) {
-            case NO_FEEDBACK -> noFeedback(quiz);
-            case SCORE -> scoreOnly(quiz, submission);
-            case LESSON_REFERENCE -> lessonReferencePlaceholder(quiz, submission);
-            case AI_OVERVIEW -> aiOverviewPlaceholder(quiz, submission);
+        return switch (quiz.getFeedbackTypeCodeOrDefault()) {
+            case "NO_FEEDBACK" -> noFeedback(quiz);
+            case "SCORE" -> scoreOnly(quiz, submission);
+            case "LESSON_REFERENCE" -> lessonReferencePlaceholder(quiz, submission);
+            case "AI_OVERVIEW" -> aiOverviewPlaceholder(quiz, submission);
+            default -> scoreOnly(quiz, submission);
         };
     }
 

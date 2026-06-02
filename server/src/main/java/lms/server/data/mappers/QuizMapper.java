@@ -20,7 +20,8 @@ public class QuizMapper implements RowMapper<Quiz> {
         quiz.setDescription(resultSet.getString("description"));
         quiz.setQuizOrder(resultSet.getInt("quiz_order"));
         quiz.setMaxPoints(resultSet.getBigDecimal("max_points"));
-        quiz.setFeedbackType(QuizFeedbackType.valueOf(resultSet.getString("feedback_type")));
+        quiz.setFeedbackTypeId(resultSet.getLong("feedback_type_id"));
+        quiz.setFeedbackTypeCode(resultSet.getString("feedback_type_code"));
 
         int timeLimitMinutes = resultSet.getInt("time_limit_minutes");
         if (!resultSet.wasNull()) {

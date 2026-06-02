@@ -41,8 +41,8 @@ public class Quiz {
     @NotNull(message = "Quiz status is required.")
     private VisibilityStatus status;
 
-    @NotNull(message = "Quiz feedback type is required.")
-    private QuizFeedbackType feedbackType;
+    private Long feedbackTypeId;
+    private String feedbackTypeCode;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -144,16 +144,26 @@ public class Quiz {
         this.publishedAt = publishedAt;
     }
 
-    public QuizFeedbackType getFeedbackType() {
-        return feedbackType;
+    public Long getFeedbackTypeId() {
+        return feedbackTypeId;
     }
 
-    public void setFeedbackType(QuizFeedbackType feedbackType) {
-        this.feedbackType = feedbackType;
+    public void setFeedbackTypeId(Long feedbackTypeId) {
+        this.feedbackTypeId = feedbackTypeId;
     }
 
-    public QuizFeedbackType getFeedbackTypeOrDefault() {
-        return feedbackType == null ? QuizFeedbackType.SCORE : feedbackType;
+    public String getFeedbackTypeCode() {
+        return feedbackTypeCode;
+    }
+
+    public void setFeedbackTypeCode(String feedbackTypeCode) {
+        this.feedbackTypeCode = feedbackTypeCode;
+    }
+
+    public String getFeedbackTypeCodeOrDefault() {
+        return feedbackTypeCode == null || feedbackTypeCode.isBlank()
+                ? "SCORE"
+                : feedbackTypeCode;
     }
 
     @Override
