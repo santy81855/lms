@@ -11,7 +11,10 @@ const defaultValues: QuizFormData = {
     maxPoints: 10,
     timeLimitMinutes: null,
     attemptsAllowed: 1,
+    feedbackType: "score",
 };
+
+type feedbackTooltip = {key: string, tooltip: string, dropdownText: string};
 
 type QuizFormProps = {
     submitLabel: string;
@@ -42,6 +45,7 @@ export function QuizForm({
     const [attemptsAllowed, setAttemptsAllowed] = useState(
         initialValues.attemptsAllowed.toString()
     );
+    const [feedbackType, setFeedbackType] = useState("score");
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -56,8 +60,32 @@ export function QuizForm({
                     ? null
                     : Number(timeLimitMinutes),
             attemptsAllowed: Number(attemptsAllowed),
+            feedbackType: feedbackType,
         });
     }
+
+    const feedbackOptions: feedbackTooltip[] = [
+            {
+                key: "score",
+                tooltip: "show the students score when they submit the quiz in the form: score / maximum score.",
+                dropdownText: "score (default)"
+            },
+            {
+                key: "noFeedback",
+                tooltip: "don't show the students any feedback when they submit the quiz.",
+                dropdownText: "No Feedback"
+            },
+            {
+                key: "lessonReference",
+                tooltip: "Show the students what questions they got right and wrong, and provide a link to the associated lesson module.",
+                dropdownText: "Reference Course Content"
+            }, 
+            {
+                key: "aiOverview",
+                tooltip: "Show the students all submitted questions with the correct answers.  Provide feedback on incorrect responses with an AI overview.",
+                dropdownText: "AI Overview"
+            }
+        ];
 
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -180,6 +208,31 @@ export function QuizForm({
                         }
                         required
                     />
+                </div>
+
+                <div className="styles.fieldGroup">
+                    <label className={styles.label} htmlFor="feedbackType">
+                        Quiz Feedback
+                    </label>
+
+                    <select 
+                        className={styles.input} 
+                        onChange={(e) => setFeedbackType(e.target.value)}
+                        >
+                        {feedbackOptions.map(tooltip => {
+                            return (
+                            <option value={tooltip.key}>
+                                {tooltip.dropdownText}
+                            </option>)
+                        })}
+
+                    </select>
+
+                    <p className={styles.helpText}>
+                        {
+                            feedbackOptions.find(t => t.key === feedbackType)?.tooltip
+                        }
+                    </p>
                 </div>
             </div>
 
