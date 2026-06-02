@@ -2,6 +2,7 @@ package lms.server.data;
 
 import lms.server.data.mappers.QuizMapper;
 import lms.server.models.Quiz;
+import lms.server.models.QuizFeedbackType;
 import lms.server.models.VisibilityStatus;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -18,10 +19,12 @@ public class QuizJdbcClientRepository implements QuizRepository {
     private final JdbcClient jdbcClient;
 
     private static final String SELECT = """
-            SELECT id, module_id, title, description, quiz_order,
-                   max_points, time_limit_minutes, attempts_allowed,
-                   status, feedback_type, created_at, updated_at, published_at
-            FROM quizzes       
+            SELECT q.id, q.module_id, q.title, q.description, q.quiz_order,
+                    q.max_points, q.time_limit_minutes, q.attempts_allowed,
+                    q.status, ft.code AS feedback_type,
+                    q.created_at, q.updated_at, q.published_at
+            FROM quizzes q
+            INNER JOIN feedback_type ft ON q.feedback_type_id = ft.id
             """;
 
     public QuizJdbcClientRepository(JdbcClient jdbcClient) {
@@ -79,7 +82,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                     time_limit_minutes,
                     attempts_allowed,
                     status,
-                    feedback_type
+                    feedback_type_id
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """;
@@ -95,7 +98,7 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quiz.getTimeLimitMinutes())
                 .param(quiz.getAttemptsAllowed())
                 .param(quiz.getStatus().name())
-                .param(quiz.getFeedbackType().name())
+                .param(feedbackTypeId(quiz.getFeedbackType()))
                 .update(keyHolder, "id");
 
         if (rowsAffected <= 0) {
@@ -188,5 +191,18 @@ public class QuizJdbcClientRepository implements QuizRepository {
                 .param(quizId)
                 .param(moduleId)
                 .update() > 0;
+    }
+
+    private int feedbackTypeId(QuizFeedbackType feedbackType) {
+        if (feedbackType == null) {
+            return 2; // SCORE
+        }
+
+        return switch (feedbackType) {
+            case NO_FEEDBACK -> 1;
+            case SCORE -> 2;
+            case LESSON_REFERENCE -> 3;
+            case AI_OVERVIEW -> 4;
+        };
     }
 }
