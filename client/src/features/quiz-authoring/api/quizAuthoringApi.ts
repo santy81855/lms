@@ -6,6 +6,7 @@ import type {
     QuizQuestion,
     QuizQuestionFormData,
 } from "../types/quizAuthoringTypes";
+import type { Lesson } from "@/features/teacher-content";
 
 function encodeOrder(order: number) {
     return encodeURIComponent(order);
@@ -104,6 +105,6 @@ export async function deleteQuizAnswerOption(optionId: number) {
     });
 }
 
-export async function fetchLessons(courseId: id){
-    
+export async function fetchLessons(courseId: number){
+    await apiClient<Lesson>(`/api/`);
 }
