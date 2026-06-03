@@ -8,7 +8,6 @@ import type {
     ModuleContentItem,
     Quiz,
     QuizFormData,
-    QuizSubmission,
     QuizSubmissionContainer,
 } from "../types/contentTypes";
 
@@ -69,7 +68,7 @@ export async function moveLesson(lessonId: number, lessonOrder: number) {
         `/api/lessons/${lessonId}/move?lessonOrder=${encodeOrder(lessonOrder)}`,
         {
             method: "PUT",
-        }
+        },
     );
 }
 
@@ -96,7 +95,7 @@ export function createAssignment(moduleId: number, data: AssignmentFormData) {
 
 export function updateAssignment(
     assignmentId: number,
-    data: AssignmentFormData
+    data: AssignmentFormData,
 ) {
     return apiClient<Assignment>(`/api/assignments/${assignmentId}`, {
         method: "PUT",
@@ -124,15 +123,15 @@ export async function returnAssignmentToDraft(assignmentId: number) {
 
 export async function moveAssignment(
     assignmentId: number,
-    assignmentOrder: number
+    assignmentOrder: number,
 ) {
     await apiClient<null>(
         `/api/assignments/${assignmentId}/move?assignmentOrder=${encodeOrder(
-            assignmentOrder
+            assignmentOrder,
         )}`,
         {
             method: "PUT",
-        }
+        },
     );
 }
 
@@ -187,7 +186,7 @@ export async function moveQuiz(quizId: number, quizOrder: number) {
         `/api/quizzes/${quizId}/move?quizOrder=${encodeOrder(quizOrder)}`,
         {
             method: "PUT",
-        }
+        },
     );
 }
 
@@ -197,6 +196,10 @@ export async function deleteQuiz(quizId: number) {
     });
 }
 
-export async function getQuizSubmissions(quizId: number) : Promise<QuizSubmissionContainer>{
-    return await apiClient<QuizSubmissionContainer>(`/api/quizzes/${quizId}/submissions`);
+export async function getQuizSubmissions(
+    quizId: number,
+): Promise<QuizSubmissionContainer> {
+    return await apiClient<QuizSubmissionContainer>(
+        `/api/quizzes/${quizId}/submissions`,
+    );
 }
