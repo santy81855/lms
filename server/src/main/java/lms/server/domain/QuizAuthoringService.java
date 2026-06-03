@@ -135,6 +135,7 @@ public class QuizAuthoringService {
         newQuestion.setQuestionOrder(questionOrder);
         newQuestion.setPoints(question.getPoints());
         newQuestion.setExplanation(trimToNull(question.getExplanation()));
+        newQuestion.setAssociatedLessonId(normalizeAssociatedLessonId(question.getAssociatedLessonId()));
 
         validate(newQuestion, result);
 
@@ -188,6 +189,7 @@ public class QuizAuthoringService {
         updatedQuestion.setQuestionOrder(questionOrder);
         updatedQuestion.setPoints(question.getPoints());
         updatedQuestion.setExplanation(trimToNull(question.getExplanation()));
+        updatedQuestion.setAssociatedLessonId(normalizeAssociatedLessonId(question.getAssociatedLessonId()));
 
         validate(updatedQuestion, result);
 
@@ -651,6 +653,14 @@ public class QuizAuthoringService {
                         throw new IllegalStateException("Could not shift quiz answer option orders backward.");
                     }
                 });
+    }
+
+    private Long normalizeAssociatedLessonId(Long associatedLessonId) {
+        if (associatedLessonId == null || associatedLessonId == 0) {
+            return null;
+        }
+
+        return associatedLessonId;
     }
 
     private <T> void validate(T model, Result<?> result) {

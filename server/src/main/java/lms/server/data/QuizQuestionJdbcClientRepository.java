@@ -14,6 +14,13 @@ import java.util.Optional;
 @Repository
 public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository {
 
+    private final static String SELECT = """
+            SELECT id, quiz_id, question_text, question_type,
+                question_order, points, explanation,
+                associated_lesson_id, created_at, updated_at
+            FROM quiz_questions
+            """;
+
     private final JdbcClient jdbcClient;
 
     public QuizQuestionJdbcClientRepository(JdbcClient jdbcClient) {
@@ -22,11 +29,7 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
 
     @Override
     public Optional<QuizQuestion> findById(Long id) {
-        final String sql = """
-                SELECT id, quiz_id, question_text, question_type,
-                       question_order, points, explanation,
-                       created_at, updated_at
-                FROM quiz_questions
+        final String sql = SELECT + """
                 WHERE id = ?;
                 """;
 
@@ -38,11 +41,7 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
 
     @Override
     public Optional<QuizQuestion> findByIdAndQuizId(Long questionId, Long quizId) {
-        final String sql = """
-                SELECT id, quiz_id, question_text, question_type,
-                       question_order, points, explanation,
-                       created_at, updated_at
-                FROM quiz_questions
+        final String sql = SELECT + """
                 WHERE id = ?
                   AND quiz_id = ?;
                 """;
@@ -56,11 +55,7 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
 
     @Override
     public List<QuizQuestion> findByQuizId(Long quizId) {
-        final String sql = """
-                SELECT id, quiz_id, question_text, question_type,
-                       question_order, points, explanation,
-                       created_at, updated_at
-                FROM quiz_questions
+        final String sql = SELECT + """
                 WHERE quiz_id = ?
                 ORDER BY question_order;
                 """;
@@ -80,9 +75,10 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
                     question_type,
                     question_order,
                     points,
-                    explanation
+                    explanation,
+                    associated_lesson_id
                 )
-                VALUES (?, ?, ?, ?, ?, ?);
+                VALUES (?, ?, ?, ?, ?, ?, ?);
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -94,6 +90,7 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
                 .param(question.getQuestionOrder())
                 .param(question.getPoints())
                 .param(question.getExplanation())
+                .param(question.getAssociatedLessonId())
                 .update(keyHolder, "id");
 
         if (rowsAffected <= 0) {
@@ -112,7 +109,8 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
                 SET question_text = ?,
                     question_type = ?,
                     points = ?,
-                    explanation = ?
+                    explanation = ?,
+                    associated_lesson_id = ?
                 WHERE id = ?
                   AND quiz_id = ?;
                 """;
@@ -122,6 +120,7 @@ public class QuizQuestionJdbcClientRepository implements QuizQuestionRepository 
                 .param(question.getQuestionType().name())
                 .param(question.getPoints())
                 .param(question.getExplanation())
+                .param(question.getAssociatedLessonId())
                 .param(question.getId())
                 .param(question.getQuizId())
                 .update() > 0;
