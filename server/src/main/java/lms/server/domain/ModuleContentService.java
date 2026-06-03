@@ -6,12 +6,7 @@ import lms.server.data.AssignmentRepository;
 import lms.server.data.LessonRepository;
 import lms.server.data.ModuleContentItemRepository;
 import lms.server.data.QuizRepository;
-import lms.server.models.Assignment;
-import lms.server.models.ContentItemType;
-import lms.server.models.CourseModule;
-import lms.server.models.Lesson;
-import lms.server.models.Quiz;
-import lms.server.models.VisibilityStatus;
+import lms.server.models.*;
 import lms.server.models.dtos.ModuleContentItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -489,6 +484,7 @@ public class ModuleContentService {
         newQuiz.setMaxPoints(quiz.getMaxPoints());
         newQuiz.setTimeLimitMinutes(quiz.getTimeLimitMinutes());
         newQuiz.setAttemptsAllowed(quiz.getAttemptsAllowed());
+        newQuiz.setFeedbackType(QuizFeedbackType.SCORE);
         newQuiz.setStatus(VisibilityStatus.DRAFT);
 
         validate(newQuiz, result);

@@ -2,6 +2,7 @@ package lms.server.data.mappers;
 
 import lms.server.models.Quiz;
 import lms.server.models.VisibilityStatus;
+import lms.server.models.QuizFeedbackType;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -19,6 +20,8 @@ public class QuizMapper implements RowMapper<Quiz> {
         quiz.setDescription(resultSet.getString("description"));
         quiz.setQuizOrder(resultSet.getInt("quiz_order"));
         quiz.setMaxPoints(resultSet.getBigDecimal("max_points"));
+        quiz.setFeedbackTypeId(resultSet.getLong("feedback_type_id"));
+        quiz.setFeedbackTypeCode(resultSet.getString("feedback_type_code"));
 
         int timeLimitMinutes = resultSet.getInt("time_limit_minutes");
         if (!resultSet.wasNull()) {

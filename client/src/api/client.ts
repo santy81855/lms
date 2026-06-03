@@ -1,6 +1,7 @@
 import { ApiError } from "./errors";
 
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -56,7 +57,7 @@ function getErrorMessage(data: unknown, fallback: string) {
 
 export async function apiClient<T>(
     path: string,
-    options: ApiClientOptions = {}
+    options: ApiClientOptions = {},
 ): Promise<T> {
     const { method = "GET", body, headers } = options;
 
@@ -77,7 +78,7 @@ export async function apiClient<T>(
     if (!response.ok) {
         const message = getErrorMessage(
             data,
-            `Request failed with status ${response.status}`
+            `Request failed with status ${response.status}`,
         );
 
         throw new ApiError(message, response.status, data);
