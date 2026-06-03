@@ -29,8 +29,15 @@ export function getLatestStudentQuizResult(quizId: number) {
     );
 }
 
+export type Result<T> = {
+    success: boolean;
+    payload: T;
+    messages: string[];
+    type?: string;
+};
+
 export function getAllStudentQuizResults(quizId: number) {
-    return apiClient<StudentQuizResult[]>(
+    return apiClient<Result<StudentQuizResult[]>>(
         `/api/student/quizzes/${quizId}/all-results`,
     );
 }

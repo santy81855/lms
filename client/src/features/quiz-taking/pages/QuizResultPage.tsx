@@ -32,9 +32,9 @@ export function QuizResultPage() {
         let shouldIgnore = false;
 
         getAllStudentQuizResults(parsedQuizId)
-            .then((allResults) => {
+            .then((response) => {
                 if (!shouldIgnore) {
-                    setResults(allResults);
+                    setResults(response.payload);
                 }
             })
             .catch((error: unknown) => {
