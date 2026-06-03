@@ -28,6 +28,23 @@ public class StudentQuizController {
         this.userService = userService;
     }
 
+    @GetMapping("/quizzes/{quizId}/attempt-status")
+    public ResponseEntity<?> findAttemptStatus(@PathVariable Long quizId,
+                                               Authentication authentication) {
+        Optional<User> student = getCurrentStudent(authentication);
+
+        if (student.isEmpty()) {
+            return unauthorizedOrForbidden(authentication);
+        }
+
+        Result<?> result = studentQuizService.findAttemptStatus(
+                quizId,
+                student.get().getId()
+        );
+
+        return resultToResponse(result);
+    }
+
     @GetMapping("/quizzes/{quizId}/take")
     public ResponseEntity<?> findQuizForTaking(@PathVariable Long quizId,
                                                Authentication authentication) {
