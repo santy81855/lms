@@ -50,10 +50,3 @@ export type StudentQuizResult = {
     maxScore: number;
     submittedAt?: string | Date;
 };
-
-export type Result<T> = {
-    success: boolean;
-    payload: T;
-    messages: string[];
-    type?: string;
-};

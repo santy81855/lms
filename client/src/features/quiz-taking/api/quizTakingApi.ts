@@ -1,4 +1,5 @@
 import { apiClient } from "@/api";
+import type { Result } from "@/types/api";
 
 import type {
     StudentQuiz,
@@ -28,13 +29,6 @@ export function getLatestStudentQuizResult(quizId: number) {
         `/api/student/quizzes/${quizId}/latest-result`,
     );
 }
-
-export type Result<T> = {
-    success: boolean;
-    payload: T;
-    messages: string[];
-    type?: string;
-};
 
 export function getAllStudentQuizResults(quizId: number) {
     return apiClient<Result<StudentQuizResult[]>>(
