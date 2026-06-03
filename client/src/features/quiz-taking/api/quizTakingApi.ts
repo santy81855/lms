@@ -19,12 +19,25 @@ export function submitStudentQuiz(
         {
             method: "POST",
             body: data,
-        }
+        },
     );
 }
 
 export function getLatestStudentQuizResult(quizId: number) {
     return apiClient<StudentQuizResult>(
-        `/api/student/quizzes/${quizId}/latest-result`
+        `/api/student/quizzes/${quizId}/latest-result`,
+    );
+}
+
+export type Result<T> = {
+    success: boolean;
+    payload: T;
+    messages: string[];
+    type?: string;
+};
+
+export function getAllStudentQuizResults(quizId: number) {
+    return apiClient<Result<StudentQuizResult[]>>(
+        `/api/student/quizzes/${quizId}/all-results`,
     );
 }

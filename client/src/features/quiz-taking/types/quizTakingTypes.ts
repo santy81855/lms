@@ -48,4 +48,12 @@ export type StudentQuizResult = {
     attemptNumber: number;
     score: number;
     maxScore: number;
+    submittedAt?: string | Date;
+};
+
+export type Result<T> = {
+    success: boolean;
+    payload: T;
+    messages: string[];
+    type?: string;
 };

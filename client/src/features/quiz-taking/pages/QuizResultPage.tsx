@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router";
 
 import { isApiError } from "@/api";
 
-import { getLatestStudentQuizResult } from "../api/quizTakingApi";
+import { getAllStudentQuizResults } from "../api/quizTakingApi";
 import { QuizResultCard } from "../components/QuizResultCard";
 import type { StudentQuizResult } from "../types/quizTakingTypes";
 
@@ -20,8 +20,7 @@ export function QuizResultPage() {
         Number.isInteger(parsedCourseId) && parsedCourseId > 0;
     const isValidQuizId = Number.isInteger(parsedQuizId) && parsedQuizId > 0;
     const isValidRoute = isValidCourseId && isValidQuizId;
-
-    const [result, setResult] = useState<StudentQuizResult | null>(null);
+    const [results, setResults] = useState<StudentQuizResult[] | null>(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingResult, setIsLoadingResult] = useState(true);
 
@@ -32,10 +31,10 @@ export function QuizResultPage() {
 
         let shouldIgnore = false;
 
-        getLatestStudentQuizResult(parsedQuizId)
-            .then((latestResult) => {
+        getAllStudentQuizResults(parsedQuizId)
+            .then((response) => {
                 if (!shouldIgnore) {
-                    setResult(latestResult);
+                    setResults(response.payload);
                 }
             })
             .catch((error: unknown) => {
@@ -47,7 +46,7 @@ export function QuizResultPage() {
                     setErrorMessage(error.message);
                 } else {
                     setErrorMessage(
-                        "Something went wrong while loading the quiz result."
+                        "Something went wrong while loading the quiz results.",
                     );
                 }
             })
@@ -96,11 +95,12 @@ export function QuizResultPage() {
                 {isValidRoute &&
                     !isLoadingResult &&
                     !errorMessage &&
-                    !result && <p>No quiz result found.</p>}
+                    !results && <p>No quiz results found.</p>}
 
-                {isValidRoute && !isLoadingResult && result && (
-                    <QuizResultCard result={result} />
-                )}
+                {isValidRoute &&
+                    !isLoadingResult &&
+                    results &&
+                    results.map((res) => <QuizResultCard result={res} />)}
             </section>
         </main>
     );

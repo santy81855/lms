@@ -6,6 +6,8 @@ import lms.server.domain.StudentQuizService;
 import lms.server.domain.UserService;
 import lms.server.models.RoleName;
 import lms.server.models.User;
+import lms.server.models.dtos.QuizSubmissionResponse;
+import lms.server.models.dtos.StudentQuizResultResponse;
 import lms.server.models.dtos.StudentQuizSubmitRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +70,23 @@ public class StudentQuizController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result.getPayload());
     }
 
+    @GetMapping("/quizzes/{quizId}/all-results")
+    public ResponseEntity<Result<List<StudentQuizResultResponse>>> findAllResults(@PathVariable Long quizId, Authentication authentication) {
+
+        Optional<User> student = getCurrentStudent(authentication);
+
+        if (student.isEmpty()) {
+            Result<List<StudentQuizResultResponse>> result = new Result<>();
+            result.addMessage("You must be logged in.", ResultType.INVALID);
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+
+        Result<List<StudentQuizResultResponse>> result = studentQuizService.findAllResults(quizId, student.get().getId());
+
+        return resultToResponseSubmission(result);
+    }
+
     @GetMapping("/quizzes/{quizId}/latest-result")
     public ResponseEntity<?> findLatestResult(@PathVariable Long quizId,
                                               Authentication authentication) {
@@ -124,5 +143,18 @@ public class StudentQuizController {
         }
 
         return ResponseEntity.badRequest().body(result.getMessages());
+    }
+
+    private ResponseEntity<Result<List<StudentQuizResultResponse>>> resultToResponseSubmission(
+            Result<List<StudentQuizResultResponse>> result) {
+
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        }
+
+        if (result.getType() == ResultType.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        }
+        return ResponseEntity.badRequest().body(result);
     }
 }
