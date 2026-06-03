@@ -8,8 +8,18 @@ import { getStudentQuiz } from "../api/studentContentApi";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./StudentQuizDetailPage.module.css";
+import { getAttemptsRemaining } from "@/features/quiz-taking";
+import type { QuizAttemptStatus } from "../types/studentContentTypes";
 
 export function StudentQuizDetailPage() {
+    const defaultQuizAttemptStatus : QuizAttemptStatus = {
+        quizId: 0,
+        attemptsAllowed: 0,
+        attemptsUsed: 0,
+        attemptsRemaining: 0,
+        canTake: false
+    }
+
     const { courseId, quizId } = useParams();
 
     const parsedCourseId = Number(courseId);
@@ -24,17 +34,27 @@ export function StudentQuizDetailPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
 
+    // TODO: students can fully retake a quiz before the backend tells them they're
+    // out of attempts.  For a better user experience, the user should not be
+    // given the option to retake a quiz they don't have attempts on, and they
+    // should be navigated away if they change the URL to a quiz they don't have
+    // quiz attempts remaining for
+    const [attemptsRemainingStatus, setAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptStatus);
+
     useEffect(() => {
         if (!isValidRoute) {
             return;
         }
 
         let shouldIgnore = false;
-
-        getStudentQuiz(parsedQuizId)
-            .then((studentQuiz) => {
+        Promise.all([
+            getStudentQuiz(parsedQuizId),
+            getAttemptsRemaining(parsedQuizId)
+        ])
+            .then(([studentQuiz, attemptsRemainingResponse]) => {
                 if (!shouldIgnore) {
                     setQuiz(studentQuiz);
+                    setAttemptsRemaining(attemptsRemainingResponse);
                 }
             })
             .catch((error: unknown) => {
@@ -135,21 +155,25 @@ export function StudentQuizDetailPage() {
                                 </div>
                             )}
                         </div>
-
+                        
                         <div className={styles.noticeCard}>
-                            <h2>Ready to start?</h2>
-                            <p>
-                                Answer each question, then submit the quiz to
-                                see your latest score.
-                            </p>
+                            <h2>{attemptsRemainingStatus.attemptsRemaining > 0 ? "Ready to start?" : "No More Attempts Remaining"}</h2>
+                            {attemptsRemainingStatus.attemptsRemaining > 0 &&
+                                <p>
+                                    Answer each question, then submit the quiz to
+                                    see your latest score.
+                                </p>
+                            }
 
                             <div className={styles.actions}>
+                                {attemptsRemainingStatus.attemptsRemaining > 0 && 
                                 <Link
                                     className={styles.primaryButton}
                                     to={`/student/courses/${parsedCourseId}/quizzes/${quiz.id}/take`}
                                 >
                                     Take quiz
-                                </Link>
+                                </Link> 
+                                }
 
                                 <Link
                                     className={styles.secondaryButton}

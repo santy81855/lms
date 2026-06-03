@@ -5,6 +5,7 @@ import type {
     StudentQuizResult,
     StudentQuizSubmitRequest,
 } from "../types/quizTakingTypes";
+import type { QuizAttemptStatus } from "@/features/student-content";
 
 export function getStudentQuizForTaking(quizId: number) {
     return apiClient<StudentQuiz>(`/api/student/quizzes/${quizId}/take`);
@@ -27,4 +28,8 @@ export function getLatestStudentQuizResult(quizId: number) {
     return apiClient<StudentQuizResult>(
         `/api/student/quizzes/${quizId}/latest-result`
     );
+}
+
+export function getAttemptsRemaining(quizId: number){
+    return apiClient<QuizAttemptStatus>(`/api/quizzes/${quizId}/attempt-status`);
 }
