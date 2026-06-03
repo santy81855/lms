@@ -57,7 +57,7 @@ export function QuizQuestionForm({
 
     // load the lessons that a teacher can link to this quiz question
     useEffect(() => {
-        if(moduleId == undefined){
+        if(moduleId === undefined){
             return;
         }
 
