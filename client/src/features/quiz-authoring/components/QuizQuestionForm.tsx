@@ -1,4 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useParams } from "react-router";
+import { fetchLessons } from "../api/quizAuthoringApi";
+import type { Lesson } from "@/features/teacher-content";
 
 import type {
     QuestionType,
@@ -19,6 +22,7 @@ const defaultValues: QuizQuestionFormData = {
     questionOrder: null,
     points: 1,
     explanation: "",
+    associatedLessonId: 0
 };
 
 type QuizQuestionFormProps = {
@@ -46,7 +50,24 @@ export function QuizQuestionForm({
         initialValues.questionOrder?.toString() ?? ""
     );
     const [points, setPoints] = useState(initialValues.points.toString());
-    const [explanation, setExplanation] = useState(initialValues.explanation);
+    const [lessons, setLessons] = useState<Lesson[]>([]);
+    const [associatedLesson, setAssociatedLesson] = useState(0);
+    const [explanation, setExplanation] = useState("");
+    const { moduleId } = useParams();
+
+    // load the lessons that a teacher can link to this quiz question
+    useEffect(() => {
+        if(moduleId === undefined){
+            return;
+        }
+
+        const setupLessons = async () => {
+            const response = await fetchLessons(moduleId);
+            setLessons(response);
+        }
+        setupLessons();
+
+    }, [])
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -58,6 +79,7 @@ export function QuizQuestionForm({
                 questionOrder.trim() === "" ? null : Number(questionOrder),
             points: Number(points),
             explanation,
+            associatedLessonId: associatedLesson,
         });
     }
 
@@ -151,10 +173,7 @@ export function QuizQuestionForm({
             </div>
 
             <div className={styles.fieldGroup}>
-                <label className={styles.label} htmlFor="explanation">
-                    Explanation
-                </label>
-
+                <label htmlFor="explanation" className={styles.label}>explanation</label>
                 <textarea
                     className={styles.textarea}
                     id="explanation"
@@ -165,6 +184,31 @@ export function QuizQuestionForm({
                     rows={4}
                     placeholder="Optional feedback or explanation shown after answering."
                 />
+            </div>
+
+            <div className={styles.fieldGroup}>
+                <label className={styles.label} htmlFor="explanation">
+                    Link to a lesson
+                </label>
+
+                <select 
+                    className={styles.input}
+                    onChange={(e) => setAssociatedLesson(parseInt(e.target.value))}
+                    value={associatedLesson}
+                    >
+                    <option value={0} >none</option>
+                    {lessons.map(lesson => {
+                        return (
+                            <option key={lesson.id} value={lesson.id}>
+                                {lesson.title}
+                            </option>
+                        );
+                    })}
+
+                </select>
+                <p className={styles.helpText}>If linking to lessons is enabled, this will show the student
+                    the relevant learning materials if they get this question wrong
+                </p>
             </div>
 
             {errorMessage && (
