@@ -10,15 +10,9 @@ import pageStyles from "@/pages/Page.module.css";
 import styles from "./StudentQuizDetailPage.module.css";
 import { getAttemptsRemaining } from "@/features/quiz-taking";
 import type { QuizAttemptStatus } from "../types/studentContentTypes";
+import { defaultQuizAttemptRemaining } from "../types/studentContentTypes";
 
 export function StudentQuizDetailPage() {
-    const defaultQuizAttemptStatus : QuizAttemptStatus = {
-        quizId: 0,
-        attemptsAllowed: 0,
-        attemptsUsed: 0,
-        attemptsRemaining: 0,
-        canTake: false
-    }
 
     const { courseId, quizId } = useParams();
 
@@ -34,12 +28,7 @@ export function StudentQuizDetailPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
 
-    // TODO: students can fully retake a quiz before the backend tells them they're
-    // out of attempts.  For a better user experience, the user should not be
-    // given the option to retake a quiz they don't have attempts on, and they
-    // should be navigated away if they change the URL to a quiz they don't have
-    // quiz attempts remaining for
-    const [attemptsRemainingStatus, setAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptStatus);
+    const [attemptsRemainingStatus, setAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptRemaining);
 
     useEffect(() => {
         if (!isValidRoute) {

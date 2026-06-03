@@ -13,3 +13,11 @@ export type QuizAttemptStatus = {
     attemptsRemaining: number;
     canTake: boolean;
 }
+
+export const defaultQuizAttemptRemaining : QuizAttemptStatus = {
+    quizId: 0,
+    attemptsAllowed: 0,
+    attemptsUsed: 0,
+    attemptsRemaining: 0,
+    canTake: false
+}
