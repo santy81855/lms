@@ -17,6 +17,8 @@ import lms.server.models.dtos.StudentQuizQuestionResponse;
 import lms.server.models.dtos.StudentQuizResponse;
 import lms.server.models.dtos.StudentQuizResultResponse;
 import lms.server.models.dtos.StudentQuizSubmitRequest;
+import lms.server.models.QuizFeedbackType;
+import lms.server.models.dtos.QuizSubmissionFeedbackResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -307,5 +309,48 @@ public class StudentQuizService {
         for (String message : source.getMessages()) {
             target.addMessage(message, source.getType());
         }
+    }
+
+    public Result<QuizSubmissionFeedbackResponse> findSubmissionFeedback(Long quizId, Long submissionId, Long studentId) {
+        Result<QuizSubmissionFeedbackResponse> result = new Result<>();
+
+        if (quizId == null) {
+            result.addMessage("Quiz id is required.", ResultType.INVALID);
+            return result;
+        }
+
+        if (submissionId == null) {
+            result.addMessage("Submission id is required.", ResultType.INVALID);
+            return result;
+        }
+
+        if (studentId == null) {
+            result.addMessage("Student id is required.", ResultType.INVALID);
+            return result;
+        }
+
+        Result<Quiz> quizResult = studentContentService.findQuizById(quizId, studentId);
+
+        if (!quizResult.isSuccess()) {
+            copyErrors(quizResult, result);
+            return result;
+        }
+
+        Quiz quiz = quizResult.getPayload();
+
+        QuizSubmission submission = quizSubmissionRepository.findById(submissionId)
+                .orElse(null);
+
+        if (submission == null
+                || !submission.getQuizId().equals(quizId)
+                || !submission.getStudentId().equals(studentId)) {
+            result.addMessage("Quiz submission not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        QuizSubmissionFeedbackResponse response = QuizSubmissionFeedbackResponse.from(quiz, submission);
+
+        result.setPayload(response);
+        return result;
     }
 }
