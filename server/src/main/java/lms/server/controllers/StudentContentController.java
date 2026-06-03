@@ -27,6 +27,23 @@ public class StudentContentController {
         this.userService = userService;
     }
 
+    @GetMapping("/courses/{courseId}/lessons")
+    public ResponseEntity<?> findLessonsByCourseId(@PathVariable Long courseId,
+                                                   Authentication authentication) {
+        Optional<User> student = getCurrentStudent(authentication);
+
+        if (student.isEmpty()) {
+            return unauthorizedOrForbidden(authentication);
+        }
+
+        Result<?> result = studentContentService.findLessonsByCourseId(
+                courseId,
+                student.get().getId()
+        );
+
+        return resultToResponse(result);
+    }
+
     @GetMapping("/courses/{courseId}")
     public ResponseEntity<?> findCourseById(@PathVariable Long courseId,
                                             Authentication authentication) {
