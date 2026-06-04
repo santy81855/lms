@@ -16,7 +16,14 @@ public class QuizQuestionMapper implements RowMapper<QuizQuestion> {
         question.setId(resultSet.getLong("id"));
         question.setQuizId(resultSet.getLong("quiz_id"));
         question.setQuestionText(resultSet.getString("question_text"));
-        question.setAssociatedLessonId(resultSet.getObject("associated_lesson_id", Long.class));
+        
+        long associatedLessonId = resultSet.getLong("associated_lesson_id");
+
+        if (resultSet.wasNull()) {
+            question.setAssociatedLessonId(null);
+        } else {
+            question.setAssociatedLessonId(associatedLessonId);
+        }
 
         question.setQuestionType(
                 QuestionType.valueOf(resultSet.getString("question_type"))
