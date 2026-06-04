@@ -16,7 +16,6 @@ import type {
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./TakeQuizPage.module.css";
-import { defaultQuizAttemptRemaining, type QuizAttemptStatus } from "@/features/student-content";
 
 export function TakeQuizPage() {
     const navigate = useNavigate();
@@ -40,10 +39,9 @@ export function TakeQuizPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [attemptsRemaining, setAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptRemaining);
 
     useEffect(() => {
-        if (!isValidRoute || quiz == null) {
+        if (!isValidRoute) {
             return;
         }
 
@@ -51,15 +49,17 @@ export function TakeQuizPage() {
 
         Promise.all([
             getStudentQuizForTaking(parsedQuizId),
-            getAttemptsRemaining(quiz?.id)
+            getAttemptsRemaining(parsedQuizId)
         ])
-            .then(([studentQuiz, attempts]) => {
+            .then(([studentQuiz,attempts]) => {
                 if(attempts.attemptsRemaining <= 0){
                     setErrorMessage("You may not retake this quiz");
+                    setIsLoadingQuiz(false);
                     return;
                 }
                 if (!shouldIgnore) {
                     setQuiz(studentQuiz);
+                    setIsLoadingQuiz(false);
                 }
             })
             .catch((error: unknown) => {

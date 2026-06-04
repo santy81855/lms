@@ -128,6 +128,11 @@ export function StudentQuizDetailPage() {
                                 </div>
 
                                 <div>
+                                <dt>Attempts remaining</dt>
+                                    <dd>{attemptsRemainingStatus.attemptsRemaining}</dd>
+                                </div>
+
+                                <div>
                                     <dt>Time limit</dt>
                                     <dd>
                                         {quiz.timeLimitMinutes === null

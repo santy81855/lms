@@ -32,13 +32,14 @@ export function getLatestStudentQuizResult(quizId: number) {
 
 export function getAttemptsRemaining(quizId: number){
     // mocking backend response until the API endpoint is merged in
+    // remove this when merged
     return new Promise<QuizAttemptStatus>((resolve, reject) => {
         const quizAttempts : QuizAttemptStatus = {
             quizId: 0,
             attemptsAllowed: 2,
             attemptsUsed: 1,
-            attemptsRemaining: 0,
-            canTake: false
+            attemptsRemaining: 1,
+            canTake: true
         };
         
         resolve(quizAttempts);
