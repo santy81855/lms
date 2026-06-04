@@ -191,6 +191,38 @@ public class StudentQuizService {
         return result;
     }
 
+    public Result<List<StudentQuizResultResponse>> findAllResults(Long quizId, Long studentId) {
+        Result<List<StudentQuizResultResponse>> result = new Result<>();
+
+        Result<Quiz> quizResult = studentContentService.findQuizById(quizId, studentId);
+
+        if (!quizResult.isSuccess()) {
+            copyErrors(quizResult, result);
+            return result;
+        }
+
+        // find all submissions
+        List<QuizSubmission> submissionList = quizSubmissionRepository.findByQuizIdAndStudentId(quizId, studentId);
+
+        if (submissionList.isEmpty()) {
+            result.addMessage("No quiz results found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        result.setPayload(buildResultListResponse(submissionList));
+        return result;
+    }
+
+    private List<StudentQuizResultResponse> buildResultListResponse(List<QuizSubmission> list) {
+        List<StudentQuizResultResponse> ret = new ArrayList<>();
+        for (QuizSubmission sub : list) {
+            StudentQuizResultResponse temp = buildResultResponse(sub);
+            temp.setSubmittedAt(sub.getSubmittedAt()); // add the submitted at field only to the list of all submissions
+            ret.add(temp);
+        }
+        return ret;
+    }
+
     public Result<StudentQuizResultResponse> findLatestResult(Long quizId, Long studentId) {
         Result<StudentQuizResultResponse> result = new Result<>();
 
