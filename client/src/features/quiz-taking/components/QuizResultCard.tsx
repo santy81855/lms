@@ -1,6 +1,6 @@
 import type { StudentQuizResult } from "../types/quizTakingTypes";
 import { formatTimeAgo } from "../lib/formattingHelper";
-
+import { QuizFeedbackAccordion } from "./QuizFeedbackAccordion";
 import styles from "./QuizResultCard.module.css";
 
 type QuizResultCardProps = {
@@ -38,6 +38,11 @@ export function QuizResultCard({ result }: QuizResultCardProps) {
                     <dd>{result.quizId}</dd>
                 </div>
             </dl>
+            {
+                // Get the feedback type for this quiz.  Conditionally render contents based on feedback
+                // type.  May also need to change the <h2> above.
+            }
+            <QuizFeedbackAccordion result={result}/>
         </article>
     );
 }

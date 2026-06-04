@@ -2,6 +2,7 @@ import { apiClient } from "@/api";
 import type { Result } from "@/types/api";
 
 import type {
+    QuizFeedback,
     StudentQuiz,
     StudentQuizResult,
     StudentQuizSubmitRequest,
@@ -34,4 +35,8 @@ export function getAllStudentQuizResults(quizId: number) {
     return apiClient<Result<StudentQuizResult[]>>(
         `/api/student/quizzes/${quizId}/all-results`,
     );
+}
+
+export function getQuizFeedback(resultId: number){
+    return apiClient<QuizFeedback>(`/quizzes/${resultId}/submissions/{submissionId}/feedback`);
 }
