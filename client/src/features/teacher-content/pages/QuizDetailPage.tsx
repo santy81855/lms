@@ -100,7 +100,6 @@ export function QuizDetailPage() {
         Promise.all([getQuizSubmissions(quiz.id)])
             .then(([result]) => {
                 setQuizSubmissions(result.submissions);
-                console.log(result.submissions);
                 
             }).catch((error: unknown) => {
                 console.error(error);

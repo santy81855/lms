@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { isApiError } from "@/api";
 import type { Course } from "@/features/teacher-courses";
@@ -21,62 +21,50 @@ export function StudentDashboardPage() {
     const [isLoadingCourses, setIsLoadingCourses] = useState(true);
     const [isJoiningCourse, setIsJoiningCourse] = useState(false);
     const [searchContent, setSearchContent] = useState("");
-    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
-    const [sort, SetSort] = useState("A-Z");
+    const [sort, setSort] = useState("A-Z");
+
+    const filteredCourses = useMemo(() => {
+        const search = searchContent.toLowerCase().trim();
+
+        return [...courses]
+            .filter((course) => {
+                const title = course.title ?? "";
+                const subject = course.subject ?? "";
+                const description = course.description ?? "";
+
+                return (
+                    title.toLowerCase().includes(search) ||
+                    subject.toLowerCase().includes(search) ||
+                    description.toLowerCase().includes(search)
+                );
+            })
+            .sort((a, b) => {
+                if (sort === "A-Z") {
+                    return (a.title ?? "").localeCompare(b.title ?? "");
+                }
+
+                if (sort === "Newest") {
+                    return (
+                        new Date(b.updatedAt ?? 0).getTime() -
+                        new Date(a.updatedAt ?? 0).getTime()
+                    );
+                }
+
+                if (sort === "Oldest") {
+                    return (
+                        new Date(a.updatedAt ?? 0).getTime() -
+                        new Date(b.updatedAt ?? 0).getTime()
+                    );
+                }
+
+                return 0;
+            });
+    }, [courses, searchContent, sort]);
 
     async function loadCourses() {
         const studentCourses = await getStudentCourses();
         setCourses(studentCourses);
     }
-
-    useEffect(() => {
-        const filtered = courses
-            .filter((course) => {
-                if (course.title == null || course.title == undefined) {
-                    course.title = "";
-                }
-                if (course.subject == null || course.subject == undefined) {
-                    course.subject = "";
-                }
-                if (
-                    course.description == null ||
-                    course.description == undefined
-                ) {
-                    course.description = "";
-                }
-
-                return (
-                    course.title.includes(searchContent) ||
-                    course.subject.includes(searchContent) ||
-                    course.description.includes(searchContent)
-                );
-            })
-            .sort((a, b) => {
-                if (a.updatedAt == null || b.updatedAt == undefined) {
-                    a.updatedAt = "";
-                    b.updatedAt = "";
-                }
-
-                if (sort === "A-Z") {
-                    return a.title.localeCompare(b.title);
-                }
-                if (sort === "Newest") {
-                    return (
-                        new Date(b.updatedAt).getTime() -
-                        new Date(a.updatedAt).getTime()
-                    );
-                }
-                if (sort === "Oldest") {
-                    return (
-                        new Date(a.updatedAt).getTime() -
-                        new Date(b.updatedAt).getTime()
-                    );
-                }
-                return 0;
-            });
-
-        setFilteredCourses([...filtered]);
-    }, [courses, searchContent, sort]);
 
     useEffect(() => {
         let shouldIgnore = false;
@@ -85,7 +73,6 @@ export function StudentDashboardPage() {
             .then((studentCourses) => {
                 if (!shouldIgnore) {
                     setCourses(studentCourses);
-                    setFilteredCourses(studentCourses);
                 }
             })
             .catch((error: unknown) => {
@@ -148,7 +135,7 @@ export function StudentDashboardPage() {
                     setSearchContent={setSearchContent}
                 />
 
-                <CourseSortSelect setSort={SetSort} />
+                <CourseSortSelect setSort={setSort} />
 
                 <p className={pageStyles.description}>
                     Join a course with your teacher’s join code, then open your
@@ -205,16 +192,18 @@ export function StudentDashboardPage() {
                             </div>
                         )}
 
-                    {!isLoadingCourses && courses.length > 0 && (
-                        <div className={styles.courseList}>
-                            {filteredCourses.map((course) => (
-                                <StudentCourseCard
-                                    key={course.id}
-                                    course={course}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {!isLoadingCourses &&
+                        !loadErrorMessage &&
+                        courses.length > 0 && (
+                            <div className={styles.courseList}>
+                                {filteredCourses.map((course) => (
+                                    <StudentCourseCard
+                                        key={course.id}
+                                        course={course}
+                                    />
+                                ))}
+                            </div>
+                        )}
                 </div>
             </section>
         </main>

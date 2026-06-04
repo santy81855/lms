@@ -1,6 +1,8 @@
 package lms.server.models.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class StudentQuizResultResponse {
 
@@ -10,6 +12,15 @@ public class StudentQuizResultResponse {
     private Integer attemptNumber;
     private BigDecimal score;
     private BigDecimal maxScore;
+    private LocalDateTime submittedAt;
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
 
     public Long getSubmissionId() {
         return submissionId;

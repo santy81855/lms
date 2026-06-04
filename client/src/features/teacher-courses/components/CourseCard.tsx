@@ -38,7 +38,6 @@ export function CourseCard({ course }: CourseCardProps) {
             setVisible(true);
             setClicked(clicked + 1);
             setMounted(true);
-            console.log("fading in")
         } catch (error){
             console.error("Failed to copy join code:", error);
         }

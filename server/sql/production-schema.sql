@@ -428,6 +428,11 @@ CREATE TABLE IF NOT EXISTS quizzes
     BIGINT
     NOT
     NULL,
+    
+    feedback_type_id INT NOT NULL,
+	CONSTRAINT fk_quizzes_feedback_type
+    	FOREIGN KEY (feedback_type_id)
+    	REFERENCES feedback_type(id),
 
     title
     VARCHAR
@@ -1077,3 +1082,21 @@ ADD COLUMN associated_lesson_id BIGINT NULL,
 ADD CONSTRAINT fk_quiz_questions_associated_lesson
     FOREIGN KEY (associated_lesson_id)
     REFERENCES lessons(id);    
+    
+-- Immediate feedback type logic update    
+    
+CREATE TABLE feedback_type (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(30) NOT NULL UNIQUE,
+    description VARCHAR(255) NOT NULL
+);
+
+INSERT INTO feedback_type (id, code, description) VALUES
+(1, 'NO_CONTENT', 'Students cannot results.'),
+(2, 'SCORE', 'Students can see only their score.'),
+(3, 'MODULE_REF', 'Students can see lesson references for incorrect questions.'),
+(4, 'AI_OVERVIEW', 'Students can see AI-generated explanations.');
+    
+
+-- Run if you don't want to reset db otherwise delete this and rerun file.
+ALTER TABLE quizzes ADD COLUMN feedback_type VARCHAR(30) NOT NULL DEFAULT 'SCORE';
