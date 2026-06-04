@@ -88,7 +88,7 @@ export function StudentContentItemCard({
                 && !errors
                 && !isLoadingDetails 
                 && <p className={styles.mutedText}>
-                    attempts remaining: {quizAttemptsRemaining.attemptsRemaining} / {quizAttemptsRemaining.attemptsAllowed}
+                    attempts made: {quizAttemptsRemaining.attemptsUsed} / {quizAttemptsRemaining.attemptsAllowed}
                 </p>}
         </article>
     );

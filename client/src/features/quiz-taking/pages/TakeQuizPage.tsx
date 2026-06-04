@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { isApiError } from "@/api";
 
 import {
+    getAttemptsRemaining,
     getStudentQuizForTaking,
     submitStudentQuiz,
 } from "../api/quizTakingApi";
@@ -15,6 +16,7 @@ import type {
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./TakeQuizPage.module.css";
+import { defaultQuizAttemptRemaining, type QuizAttemptStatus } from "@/features/student-content";
 
 export function TakeQuizPage() {
     const navigate = useNavigate();
@@ -38,16 +40,24 @@ export function TakeQuizPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [attemptsRemaining, setAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptRemaining);
 
     useEffect(() => {
-        if (!isValidRoute) {
+        if (!isValidRoute || quiz == null) {
             return;
         }
 
         let shouldIgnore = false;
 
-        getStudentQuizForTaking(parsedQuizId)
-            .then((studentQuiz) => {
+        Promise.all([
+            getStudentQuizForTaking(parsedQuizId),
+            getAttemptsRemaining(quiz?.id)
+        ])
+            .then(([studentQuiz, attempts]) => {
+                if(attempts.attemptsRemaining <= 0){
+                    setErrorMessage("You may not retake this quiz");
+                    return;
+                }
                 if (!shouldIgnore) {
                     setQuiz(studentQuiz);
                 }

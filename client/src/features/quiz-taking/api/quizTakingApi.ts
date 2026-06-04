@@ -5,7 +5,7 @@ import type {
     StudentQuizResult,
     StudentQuizSubmitRequest,
 } from "../types/quizTakingTypes";
-import type { QuizAttemptStatus } from "@/features/student-content";
+import { defaultQuizAttemptRemaining, type QuizAttemptStatus } from "@/features/student-content";
 
 export function getStudentQuizForTaking(quizId: number) {
     return apiClient<StudentQuiz>(`/api/student/quizzes/${quizId}/take`);
@@ -31,5 +31,18 @@ export function getLatestStudentQuizResult(quizId: number) {
 }
 
 export function getAttemptsRemaining(quizId: number){
-    return apiClient<QuizAttemptStatus>(`/api/quizzes/${quizId}/attempt-status`);
+    // mocking backend response until the API endpoint is merged in
+    return new Promise<QuizAttemptStatus>((resolve, reject) => {
+        const quizAttempts : QuizAttemptStatus = {
+            quizId: 0,
+            attemptsAllowed: 2,
+            attemptsUsed: 1,
+            attemptsRemaining: 0,
+            canTake: false
+        };
+        
+        resolve(quizAttempts);
+    })
+    // TODO: uncomment the following code when the API endpoint is merged
+    // return apiClient<QuizAttemptStatus>(`/api/quizzes/${quizId}/attempt-status`);
 }
