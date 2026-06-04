@@ -31,6 +31,8 @@ public class QuizQuestion {
 
     private String explanation;
 
+    private Long associatedLessonId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -88,6 +90,14 @@ public class QuizQuestion {
 
     public void setExplanation(String explanation) {
         this.explanation = explanation;
+    }
+
+    public Long getAssociatedLessonId() {
+        return associatedLessonId;
+    }
+
+    public void setAssociatedLessonId(Long associatedLessonId) {
+        this.associatedLessonId = associatedLessonId;
     }
 
     public LocalDateTime getCreatedAt() {

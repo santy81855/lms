@@ -1076,6 +1076,12 @@ CREATE TABLE IF NOT EXISTS activity_logs
     ON DELETE SET NULL
     );
     
+-- Alteration to match front end logic
+ALTER TABLE quiz_questions
+ADD COLUMN associated_lesson_id BIGINT NULL,
+ADD CONSTRAINT fk_quiz_questions_associated_lesson
+    FOREIGN KEY (associated_lesson_id)
+    REFERENCES lessons(id);    
     
 -- Immediate feedback type logic update    
     
