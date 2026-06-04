@@ -141,6 +141,14 @@ public class Quiz {
         this.publishedAt = publishedAt;
     }
 
+    public int getAttemptsAllowedOrDefault() {
+        return attemptsAllowed == null ? 1 : attemptsAllowed;
+    }
+
+    public boolean canTakeWithAttemptsUsed(int attemptsUsed) {
+        return attemptsUsed < getAttemptsAllowedOrDefault();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

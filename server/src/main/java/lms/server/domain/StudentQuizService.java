@@ -64,13 +64,8 @@ public class StudentQuizService {
         Quiz quiz = quizResult.getPayload();
 
         int attemptsUsed = quizSubmissionRepository.countByQuizIdAndStudentId(quizId, studentId);
-        int attemptsAllowed = quiz.getAttemptsAllowed() == null ? 1 : quiz.getAttemptsAllowed();
 
-        result.setPayload(new StudentQuizAttemptStatusResponse(
-                quizId,
-                attemptsAllowed,
-                attemptsUsed
-        ));
+        result.setPayload(StudentQuizAttemptStatusResponse.from(quiz, attemptsUsed));
 
         return result;
     }
