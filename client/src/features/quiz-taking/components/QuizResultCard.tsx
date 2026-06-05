@@ -59,7 +59,7 @@ export function QuizResultCard({ result, quizMetaData }: QuizResultCardProps) {
                 quizMetaData !== null &&
                 quizMetaData.feedbackTypeCode !== "NO_CONTENT" &&
                 quizMetaData.feedbackTypeCode !== "SCORE" &&
-                <QuizFeedbackAccordion result={result}/>
+                <QuizFeedbackAccordion results={result} quizMetadata={quizMetaData}/>
             }
         </article>
     );

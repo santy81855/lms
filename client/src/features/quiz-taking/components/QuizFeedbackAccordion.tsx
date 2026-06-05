@@ -3,9 +3,16 @@ import { getQuizFeedback } from "../api/quizTakingApi";
 import type { QuizFeedback, StudentQuizResult } from "../types/quizTakingTypes";
 import styles from "./QuizFeedbackAccordion.module.css";
 import { isApiError } from "@/api";
+import type { Quiz } from "@/features/teacher-content";
+import { AiQuizFeedback } from "./AiQuizFeedback";
+import { LessonReferenceFeedback } from "./LessonReferenceFeedback";
 
+type QuizFeedbackAccordionProps = {
+    results : StudentQuizResult,
+    quizMetadata : Quiz
+}
 
-export function QuizFeedbackAccordion({ result } : {result : StudentQuizResult}) {
+export function QuizFeedbackAccordion(props : QuizFeedbackAccordionProps) {
 
     const [expanded, setExpanded] = useState(false);
     const [hasLoaded, setHasLoaded] = useState(false);
@@ -19,7 +26,7 @@ export function QuizFeedbackAccordion({ result } : {result : StudentQuizResult})
             return;
         }
 
-        getQuizFeedback(result.quizId)
+        getQuizFeedback(props.results.quizId)
             .then( (response) => {
                 setFeedback(response);
             })
@@ -45,7 +52,15 @@ export function QuizFeedbackAccordion({ result } : {result : StudentQuizResult})
                     errors.length && 
                     feedback != null &&
                     <div className={styles.content}>
-                        <p>Feedback list goes here</p>
+                        {feedback.content.map((res) => {
+                            return <div key={res.questionNumber}>
+                                {feedback.type === "aiOverview" && 
+                                <AiQuizFeedback  content={res}/>}
+                                
+                                {feedback.type === "lessonReference" && 
+                                <LessonReferenceFeedback content={res}/>}
+                            </div>
+                        })}
                     </div>
                 }
             </details>
