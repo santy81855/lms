@@ -28,24 +28,24 @@ export function getStudentLesson(lessonId: number) {
 }
 
 export function getStudentQuiz(quizId: number) {
-    const mockQuiz : Quiz = {
-        id: 22,
-        moduleId: 0,
-        title: "",
-        description: null,
-        quizOrder: 0,
-        maxPoints: 10,
-        timeLimitMinutes: null,
-        attemptsAllowed: 2,
-        status: "PUBLISHED",
-        createdAt: null,
-        updatedAt: null,
-        publishedAt: null,
-        feedbackTypeCode: "SCORE"
-    }
-    return new Promise<Quiz>((resolve, reject) => {
-        resolve(mockQuiz);
-    });
-    
+    // const mockQuiz : Quiz = {
+    //     id: 22,
+    //     moduleId: 0,
+    //     title: "",
+    //     description: null,
+    //     quizOrder: 0,
+    //     maxPoints: 10,
+    //     timeLimitMinutes: null,
+    //     attemptsAllowed: 2,
+    //     status: "PUBLISHED",
+    //     createdAt: null,
+    //     updatedAt: null,
+    //     publishedAt: null,
+    //     feedbackTypeCode: "SCORE"
+    // }
+    // return new Promise<Quiz>((resolve, reject) => {
+    //     resolve(mockQuiz);
+    // });
+
     return apiClient<Quiz>(`/api/student/quizzes/${quizId}`);
 }
