@@ -26,13 +26,7 @@ export function QuizResultPage() {
     const [results, setResults] = useState<StudentQuizResult[] | null>(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingResult, setIsLoadingResult] = useState(true);
-    
-    // links navigating to this page already contain quiz metadata
-    // which can be extracted in the useLocation.  If the user somehow
-    // navigates to this page without using a link, this data will
-    // be fetched from the backend in the useEffect below
-    const location = useLocation();
-    const [quizMetadata, setQuizMetadata] = useState<Quiz>(location.state as Quiz);
+    const [quizMetadata, setQuizMetadata] = useState<Quiz | null>(null);
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -41,18 +35,18 @@ export function QuizResultPage() {
 
         let shouldIgnore = false;
         
-        if(quizMetadata === null || quizMetadata === undefined){
-            getStudentQuiz(parsedQuizId)
-                .then((quiz) => setQuizMetadata(quiz))
-                .catch((error: unknown) => {
-                    if (isApiError(error)) {
-                        setErrorMessage(error.message);
-                    } else{
-                        setErrorMessage("Something went wrong while fetching data about the quiz results")
-                    }
-                })
-        }
-        
+        // metadata that represents every quiz result as a group
+        getStudentQuiz(parsedQuizId)
+            .then((quiz) => setQuizMetadata(quiz))
+            .catch((error: unknown) => {
+                if (isApiError(error)) {
+                    setErrorMessage(error.message);
+                } else{
+                    setErrorMessage("Something went wrong while fetching data about the quiz results")
+                }
+            })
+
+        // data and metadata that represents individual quiz results
         getAllStudentQuizResults(parsedQuizId)
             .then((response) => {
                 if (!shouldIgnore) {

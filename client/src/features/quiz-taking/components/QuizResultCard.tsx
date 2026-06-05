@@ -6,7 +6,7 @@ import type { Quiz } from "@/features/teacher-content";
 
 type QuizResultCardProps = {
     result: StudentQuizResult;
-    quizMetaData: Quiz;
+    quizMetaData: Quiz | null;
 };
 
 export function QuizResultCard({ result, quizMetaData }: QuizResultCardProps) {
@@ -25,6 +25,15 @@ export function QuizResultCard({ result, quizMetaData }: QuizResultCardProps) {
             </div>
 
             {
+                quizMetaData !== null &&
+                quizMetaData.feedbackTypeCode === "NO_CONTENT" && 
+                <p>
+                    Your instructor has disabled feedback for this quiz.
+                </p>
+            }
+
+            {
+                quizMetaData !== null &&
                 quizMetaData.feedbackTypeCode !== "NO_CONTENT" && 
                 <>
                 <h2>
@@ -47,6 +56,7 @@ export function QuizResultCard({ result, quizMetaData }: QuizResultCardProps) {
                 </div>
             </dl>
             {
+                quizMetaData !== null &&
                 quizMetaData.feedbackTypeCode !== "NO_CONTENT" &&
                 quizMetaData.feedbackTypeCode !== "SCORE" &&
                 <QuizFeedbackAccordion result={result}/>
