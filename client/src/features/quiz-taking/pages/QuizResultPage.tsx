@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import { useLocation } from "react-router";
 
 import { isApiError } from "@/api";
 
-import { getAllStudentQuizResults } from "../api/quizTakingApi";
+import { getAllStudentQuizResults, getStudentQuizForTaking } from "../api/quizTakingApi";
 import { QuizResultCard } from "../components/QuizResultCard";
 import type { StudentQuizResult } from "../types/quizTakingTypes";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./QuizResultPage.module.css";
+import type { Quiz } from "@/features/teacher-content";
+import { getStudentQuiz } from "@/features/student-content";
 
 export function QuizResultPage() {
     const { courseId, quizId } = useParams();
@@ -23,6 +26,13 @@ export function QuizResultPage() {
     const [results, setResults] = useState<StudentQuizResult[] | null>(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingResult, setIsLoadingResult] = useState(true);
+    
+    // links navigating to this page already contain quiz metadata
+    // which can be extracted in the useLocation.  If the user somehow
+    // navigates to this page without using a link, this data will
+    // be fetched from the backend in the useEffect below
+    const location = useLocation();
+    const [quizMetadata, setQuizMetadata] = useState<Quiz>(location.state as Quiz);
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -30,7 +40,19 @@ export function QuizResultPage() {
         }
 
         let shouldIgnore = false;
-
+        
+        if(quizMetadata === null || quizMetadata === undefined){
+            getStudentQuiz(parsedQuizId)
+                .then((quiz) => setQuizMetadata(quiz))
+                .catch((error: unknown) => {
+                    if (isApiError(error)) {
+                        setErrorMessage(error.message);
+                    } else{
+                        setErrorMessage("Something went wrong while fetching data about the quiz results")
+                    }
+                })
+        }
+        
         getAllStudentQuizResults(parsedQuizId)
             .then((response) => {
                 if (!shouldIgnore) {
@@ -55,6 +77,8 @@ export function QuizResultPage() {
                     setIsLoadingResult(false);
                 }
             });
+        
+
 
         return () => {
             shouldIgnore = true;
@@ -100,7 +124,7 @@ export function QuizResultPage() {
                 {isValidRoute &&
                     !isLoadingResult &&
                     results &&
-                    results.map((res) => <QuizResultCard result={res} />)}
+                    results.map((res) => <QuizResultCard result={res} quizMetaData={quizMetadata} />)}
             </section>
         </main>
     );

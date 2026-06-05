@@ -54,6 +54,7 @@ export type Quiz = {
     createdAt: string | null;
     updatedAt: string | null;
     publishedAt: string | null;
+    feedbackTypeCode: string;
 };
 
 export type LessonFormData = {

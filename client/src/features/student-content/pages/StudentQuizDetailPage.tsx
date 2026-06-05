@@ -154,6 +154,7 @@ export function StudentQuizDetailPage() {
                                 <Link
                                     className={styles.secondaryButton}
                                     to={`/student/courses/${parsedCourseId}/quizzes/${quiz.id}/result`}
+                                    state={quiz}
                                 >
                                     View latest result
                                 </Link>

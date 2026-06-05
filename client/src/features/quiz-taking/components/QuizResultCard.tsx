@@ -2,17 +2,20 @@ import type { StudentQuizResult } from "../types/quizTakingTypes";
 import { formatTimeAgo } from "../lib/formattingHelper";
 import { QuizFeedbackAccordion } from "./QuizFeedbackAccordion";
 import styles from "./QuizResultCard.module.css";
+import type { Quiz } from "@/features/teacher-content";
 
 type QuizResultCardProps = {
     result: StudentQuizResult;
+    quizMetaData: Quiz;
 };
 
-export function QuizResultCard({ result }: QuizResultCardProps) {
+export function QuizResultCard({ result, quizMetaData }: QuizResultCardProps) {
     const percentage =
         result.maxScore === 0
             ? 0
             : Math.round((result.score / result.maxScore) * 100);
-    return (
+    
+            return (
         <article className={styles.card}>
             <div className={styles.titleContainer}>
                 <p className={styles.eyebrow}>Attempt {result.attemptNumber}</p>
@@ -21,11 +24,16 @@ export function QuizResultCard({ result }: QuizResultCardProps) {
                 </p>
             </div>
 
-            <h2>
-                Score: {result.score} / {result.maxScore}
-            </h2>
+            {
+                quizMetaData.feedbackTypeCode !== "NO_CONTENT" && 
+                <>
+                <h2>
+                    Score: {result.score} / {result.maxScore}
+                </h2>
+                <p className={styles.percentage}>{percentage}%</p>
+                </>
+            }
 
-            <p className={styles.percentage}>{percentage}%</p>
 
             <dl className={styles.detailList}>
                 <div>
@@ -39,10 +47,10 @@ export function QuizResultCard({ result }: QuizResultCardProps) {
                 </div>
             </dl>
             {
-                // Get the feedback type for this quiz.  Conditionally render contents based on feedback
-                // type.  May also need to change the <h2> above.
+                quizMetaData.feedbackTypeCode !== "NO_CONTENT" &&
+                quizMetaData.feedbackTypeCode !== "SCORE" &&
+                <QuizFeedbackAccordion result={result}/>
             }
-            <QuizFeedbackAccordion result={result}/>
         </article>
     );
 }
