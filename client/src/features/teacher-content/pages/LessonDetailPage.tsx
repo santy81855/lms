@@ -16,6 +16,8 @@ import type { Lesson } from "../types/contentTypes";
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./LessonDetailPage.module.css";
 
+import { isAfter, subHours } from "date-fns";
+
 export function LessonDetailPage() {
     const navigate = useNavigate();
     const { courseId, moduleId, lessonId } = useParams();
@@ -37,6 +39,7 @@ export function LessonDetailPage() {
     const [actionMessage, setActionMessage] = useState("");
     const [isLoadingLesson, setIsLoadingLesson] = useState(true);
     const [isRunningAction, setIsRunningAction] = useState(false);
+    const [now] = useState(() => new Date());
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -230,6 +233,20 @@ export function LessonDetailPage() {
                                     <dt>Published at</dt>
                                     <dd>
                                         {lesson.publishedAt ?? "Not published"}
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dd>
+                                        {lesson.updatedAt &&
+                                            isAfter(
+                                                new Date(lesson.updatedAt),
+                                                subHours(now, 24)
+                                            ) && (
+                                                <span className={styles.recentlyUpdated}>
+                                                    Recently Updated
+                                                </span>
+                                            )}
                                     </dd>
                                 </div>
                             </dl>
