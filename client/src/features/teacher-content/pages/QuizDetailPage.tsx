@@ -22,6 +22,8 @@ import type { Quiz, QuizSubmission } from "../types/contentTypes";
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./QuizDetailPage.module.css";
 
+import { isAfter, subHours } from "date-fns";
+
 export function QuizDetailPage() {
     const navigate = useNavigate();
     const { courseId, moduleId, quizId } = useParams();
@@ -45,6 +47,7 @@ export function QuizDetailPage() {
     const [isRunningAction, setIsRunningAction] = useState(false);
     const [viewSubmissions, setViewSubmissions] = useState(false);
     const [quizSubmissions, setQuizSubmissions] = useState<QuizSubmission[]>([]);
+    const [now] = useState(() => new Date());
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -93,7 +96,7 @@ export function QuizDetailPage() {
     }, [isValidRoute, parsedModuleId, parsedQuizId]);
 
     useEffect(() => {
-        if(!isValidRoute || !quiz?.id){
+        if (!isValidRoute || !quiz?.id) {
             return;
         }
         // RETURN HERE TO COMPLETE
@@ -101,14 +104,14 @@ export function QuizDetailPage() {
             .then(([result]) => {
                 setQuizSubmissions(result.submissions);
                 console.log(result.submissions);
-                
+
             }).catch((error: unknown) => {
                 console.error(error);
             });
 
-   
-    }, 
-    [quiz?.publishedAt]);
+
+    },
+        [quiz?.publishedAt]);
 
     async function reloadQuiz() {
         const [moduleQuizzes, quizQuestions] = await Promise.all([
@@ -277,6 +280,20 @@ export function QuizDetailPage() {
                                         {quiz.publishedAt ?? "Not published"}
                                     </dd>
                                 </div>
+
+                                <div>
+                                    <dd>
+                                        {quiz.updatedAt &&
+                                            isAfter(
+                                                new Date(quiz.updatedAt),
+                                                subHours(now, 24)
+                                            ) && (
+                                                <span className={styles.recentlyUpdated}>
+                                                    Recently Updated
+                                                </span>
+                                            )}
+                                    </dd>
+                                </div>
                             </dl>
 
                             {quiz.description && (
@@ -341,15 +358,15 @@ export function QuizDetailPage() {
                             <h2>Quiz actions</h2>
 
                             <div className={styles.actions}>
-                                
-                                {isRunningAction || quiz.status !== "PUBLISHED" ? <></> : 
-                                <button 
-                                    aria-disabled={isRunningAction || quiz.status !== "PUBLISHED" || questions.length === 0}
-                                    onClick={() => setViewSubmissions(!viewSubmissions)}
-                                    className={styles.secondaryButton}
+
+                                {isRunningAction || quiz.status !== "PUBLISHED" ? <></> :
+                                    <button
+                                        aria-disabled={isRunningAction || quiz.status !== "PUBLISHED" || questions.length === 0}
+                                        onClick={() => setViewSubmissions(!viewSubmissions)}
+                                        className={styles.secondaryButton}
                                     >
-                                View Submissions
-                                </button>                                
+                                        View Submissions
+                                    </button>
                                 }
 
 
@@ -422,7 +439,7 @@ export function QuizDetailPage() {
                             </div>
                         </div>
 
-                        {viewSubmissions ? 
+                        {viewSubmissions ?
                             <div className={styles.actionCard}>
                                 <h2>Quiz submissions</h2>
                                 <table className={styles.submissionTable}>
@@ -434,19 +451,19 @@ export function QuizDetailPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    {quizSubmissions.map(submission => {
-                                        return (
-                                            <tr key={submission.id}>
-                                                <td>{submission.student_name}</td>
-                                                <td>{submission.score}</td>
-                                                <td>{submission.submitted_at.split("T")[0]}</td>
-                                            </tr>
-                                        );
-                                    })}
+                                        {quizSubmissions.map(submission => {
+                                            return (
+                                                <tr key={submission.id}>
+                                                    <td>{submission.student_name}</td>
+                                                    <td>{submission.score}</td>
+                                                    <td>{submission.submitted_at.split("T")[0]}</td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
-                            </div> 
-                        : <></>}
+                            </div>
+                            : <></>}
                     </>
                 )}
             </section>
