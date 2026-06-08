@@ -149,6 +149,10 @@ public class Quiz {
         return attemptsUsed < getAttemptsAllowedOrDefault();
     }
 
+    public int getAttemptsRemaining(int attemptsUsed) {
+        return Math.max(getAttemptsAllowedOrDefault() - attemptsUsed, 0);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
