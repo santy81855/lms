@@ -22,7 +22,7 @@ import type { Quiz, QuizSubmission } from "../types/contentTypes";
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./QuizDetailPage.module.css";
 
-import { isAfter, subHours } from "date-fns";
+import { RecentlyUpdatedBadge } from "@/components/common/RecentlyUpdatedBadge";
 
 export function QuizDetailPage() {
     const navigate = useNavigate();
@@ -47,7 +47,6 @@ export function QuizDetailPage() {
     const [isRunningAction, setIsRunningAction] = useState(false);
     const [viewSubmissions, setViewSubmissions] = useState(false);
     const [quizSubmissions, setQuizSubmissions] = useState<QuizSubmission[]>([]);
-    const [now] = useState(() => new Date());
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -283,15 +282,7 @@ export function QuizDetailPage() {
 
                                 <div>
                                     <dd>
-                                        {quiz.updatedAt &&
-                                            isAfter(
-                                                new Date(quiz.updatedAt),
-                                                subHours(now, 24)
-                                            ) && (
-                                                <span className={styles.recentlyUpdated}>
-                                                    Recently Updated
-                                                </span>
-                                            )}
+                                        <RecentlyUpdatedBadge updatedAt={quiz.updatedAt} />
                                     </dd>
                                 </div>
                             </dl>
