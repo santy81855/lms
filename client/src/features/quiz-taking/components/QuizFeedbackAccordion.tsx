@@ -49,16 +49,16 @@ export function QuizFeedbackAccordion(props : QuizFeedbackAccordionProps) {
                 <summary className={styles.summary}>View Feedback</summary>                
                 {
                     hasLoaded && 
-                    errors.length && 
-                    feedback != null &&
+                    !errors.length && 
+                    feedback !== null &&
                     <div className={styles.content}>
                         {feedback.content.map((res) => {
                             return <div key={res.questionNumber}>
                                 {feedback.type === "aiOverview" && 
-                                <AiQuizFeedback  content={res}/>}
+                                <AiQuizFeedback  content={res} />}
                                 
                                 {feedback.type === "lessonReference" && 
-                                <LessonReferenceFeedback content={res}/>}
+                                <LessonReferenceFeedback content={res} />}
                             </div>
                         })}
                     </div>

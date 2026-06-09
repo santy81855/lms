@@ -118,7 +118,7 @@ export function QuizResultPage() {
                 {isValidRoute &&
                     !isLoadingResult &&
                     results &&
-                    results.map((res) => <QuizResultCard result={res} quizMetaData={quizMetadata} />)}
+                    results.map((res) => <QuizResultCard result={res} quizMetaData={quizMetadata} key={res.submissionId}/>)}
             </section>
         </main>
     );

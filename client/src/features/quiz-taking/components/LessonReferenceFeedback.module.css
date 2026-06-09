@@ -1,0 +1,17 @@
+.feedback {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #f0f0f0;
+}
+
+.question {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.response {
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    display: flex;
+}
