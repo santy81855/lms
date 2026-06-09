@@ -8,8 +8,12 @@ import { getStudentQuiz } from "../api/studentContentApi";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./StudentQuizDetailPage.module.css";
+import { getAttemptsRemaining } from "@/features/quiz-taking";
+import type { QuizAttemptStatus } from "../types/studentContentTypes";
+import { defaultQuizAttemptRemaining } from "../types/studentContentTypes";
 
 export function StudentQuizDetailPage() {
+
     const { courseId, quizId } = useParams();
 
     const parsedCourseId = Number(courseId);
@@ -24,17 +28,22 @@ export function StudentQuizDetailPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
 
+    const [attemptsRemainingStatus, setAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptRemaining);
+
     useEffect(() => {
         if (!isValidRoute) {
             return;
         }
 
         let shouldIgnore = false;
-
-        getStudentQuiz(parsedQuizId)
-            .then((studentQuiz) => {
+        Promise.all([
+            getStudentQuiz(parsedQuizId),
+            getAttemptsRemaining(parsedQuizId)
+        ])
+            .then(([studentQuiz, attemptsRemainingResponse]) => {
                 if (!shouldIgnore) {
                     setQuiz(studentQuiz);
+                    setAttemptsRemaining(attemptsRemainingResponse);
                 }
             })
             .catch((error: unknown) => {
@@ -119,6 +128,11 @@ export function StudentQuizDetailPage() {
                                 </div>
 
                                 <div>
+                                <dt>Attempts remaining</dt>
+                                    <dd>{attemptsRemainingStatus.attemptsRemaining}</dd>
+                                </div>
+
+                                <div>
                                     <dt>Time limit</dt>
                                     <dd>
                                         {quiz.timeLimitMinutes === null
@@ -135,21 +149,25 @@ export function StudentQuizDetailPage() {
                                 </div>
                             )}
                         </div>
-
+                        
                         <div className={styles.noticeCard}>
-                            <h2>Ready to start?</h2>
-                            <p>
-                                Answer each question, then submit the quiz to
-                                see your latest score.
-                            </p>
+                            <h2>{attemptsRemainingStatus.attemptsRemaining > 0 ? "Ready to start?" : "No More Attempts Remaining"}</h2>
+                            {attemptsRemainingStatus.attemptsRemaining > 0 &&
+                                <p>
+                                    Answer each question, then submit the quiz to
+                                    see your latest score.
+                                </p>
+                            }
 
                             <div className={styles.actions}>
+                                {attemptsRemainingStatus.attemptsRemaining > 0 && 
                                 <Link
                                     className={styles.primaryButton}
                                     to={`/student/courses/${parsedCourseId}/quizzes/${quiz.id}/take`}
                                 >
                                     Take quiz
-                                </Link>
+                                </Link> 
+                                }
 
                                 <Link
                                     className={styles.secondaryButton}
