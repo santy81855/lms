@@ -16,4 +16,6 @@ public interface QuizSubmissionRepository {
     int countByQuizIdAndStudentId(Long quizId, Long studentId);
 
     QuizSubmission add(QuizSubmission submission);
+
+    List<QuizSubmission> findByQuizId(Long quizId);
 }

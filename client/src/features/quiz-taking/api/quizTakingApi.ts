@@ -1,4 +1,5 @@
 import { apiClient } from "@/api";
+import type { Result } from "@/types/api";
 
 import type {
     StudentQuiz,
@@ -19,12 +20,18 @@ export function submitStudentQuiz(
         {
             method: "POST",
             body: data,
-        }
+        },
     );
 }
 
 export function getLatestStudentQuizResult(quizId: number) {
     return apiClient<StudentQuizResult>(
-        `/api/student/quizzes/${quizId}/latest-result`
+        `/api/student/quizzes/${quizId}/latest-result`,
+    );
+}
+
+export function getAllStudentQuizResults(quizId: number) {
+    return apiClient<Result<StudentQuizResult[]>>(
+        `/api/student/quizzes/${quizId}/all-results`,
     );
 }

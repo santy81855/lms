@@ -79,4 +79,24 @@ export type QuizFormData = {
     maxPoints: number;
     timeLimitMinutes?: number | null;
     attemptsAllowed: number;
+    feedbackType: string;
+};
+
+export type QuizSubmission = {
+    id: number;
+    quiz_id: number;
+    student_id: number;
+    student_first_name: string | null;
+    student_last_name: string | null;
+    student_name: string | null;
+    attempt_number: number | null;
+    status: string | null;
+    score: number | null;
+    started_at: string | null;
+    submitted_at: string;
+    graded_at: string | null;
+};
+
+export type QuizSubmissionContainer = {
+    submissions: QuizSubmission[];
 };

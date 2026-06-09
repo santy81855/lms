@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { isApiError } from "@/api";
 import type { Course } from "@/features/teacher-courses";
@@ -11,6 +11,7 @@ import SearchBar from "../components/SearchBar";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./StudentDashboardPage.module.css";
+import { CourseSortSelect } from "@/components/common/CourseSortSelect";
 
 export function StudentDashboardPage() {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -20,51 +21,50 @@ export function StudentDashboardPage() {
     const [isLoadingCourses, setIsLoadingCourses] = useState(true);
     const [isJoiningCourse, setIsJoiningCourse] = useState(false);
     const [searchContent, setSearchContent] = useState("");
-    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
-    const [sort, SetSort] = useState("A-Z");
+    const [sort, setSort] = useState("A-Z");
+
+    const filteredCourses = useMemo(() => {
+        const search = searchContent.toLowerCase().trim();
+
+        return [...courses]
+            .filter((course) => {
+                const title = course.title ?? "";
+                const subject = course.subject ?? "";
+                const description = course.description ?? "";
+
+                return (
+                    title.toLowerCase().includes(search) ||
+                    subject.toLowerCase().includes(search) ||
+                    description.toLowerCase().includes(search)
+                );
+            })
+            .sort((a, b) => {
+                if (sort === "A-Z") {
+                    return (a.title ?? "").localeCompare(b.title ?? "");
+                }
+
+                if (sort === "Newest") {
+                    return (
+                        new Date(b.updatedAt ?? 0).getTime() -
+                        new Date(a.updatedAt ?? 0).getTime()
+                    );
+                }
+
+                if (sort === "Oldest") {
+                    return (
+                        new Date(a.updatedAt ?? 0).getTime() -
+                        new Date(b.updatedAt ?? 0).getTime()
+                    );
+                }
+
+                return 0;
+            });
+    }, [courses, searchContent, sort]);
 
     async function loadCourses() {
         const studentCourses = await getStudentCourses();
         setCourses(studentCourses);
     }
-
-    useEffect(() => {
-
-        const filtered = courses.filter(course => {
-            if (course.title == null || course.title == undefined) {
-                course.title = ""
-            }
-            if (course.subject == null || course.subject == undefined) {
-                course.subject = "";
-            }
-            if (course.description == null || course.description == undefined) {
-                course.description = "";
-            }
-
-            return course.title.includes(searchContent) ||
-                course.subject.includes(searchContent) ||
-                course.description.includes(searchContent)
-        })
-            .sort((a, b) => {
-                if (a.updatedAt == null || b.updatedAt == undefined) {
-                    a.updatedAt = "";
-                    b.updatedAt = "";
-                }
-
-                if (sort === "A-Z") {
-                    return a.title.localeCompare(b.title)
-                }
-                if (sort === "Newest") {
-                    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-                }
-                if (sort === "Oldest") {
-                    return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
-                }
-                return 0;
-            });
-
-        setFilteredCourses([...filtered]);
-    }, [searchContent, sort])
 
     useEffect(() => {
         let shouldIgnore = false;
@@ -73,7 +73,6 @@ export function StudentDashboardPage() {
             .then((studentCourses) => {
                 if (!shouldIgnore) {
                     setCourses(studentCourses);
-                    setFilteredCourses(studentCourses);
                 }
             })
             .catch((error: unknown) => {
@@ -85,7 +84,7 @@ export function StudentDashboardPage() {
                     setLoadErrorMessage(error.message);
                 } else {
                     setLoadErrorMessage(
-                        "Something went wrong while loading your courses."
+                        "Something went wrong while loading your courses.",
                     );
                 }
             })
@@ -115,7 +114,7 @@ export function StudentDashboardPage() {
                 setJoinErrorMessage(error.message);
             } else {
                 setJoinErrorMessage(
-                    "Something went wrong while joining the course."
+                    "Something went wrong while joining the course.",
                 );
             }
         } finally {
@@ -131,13 +130,12 @@ export function StudentDashboardPage() {
                     <h1>My courses</h1>
                 </div>
 
-                <SearchBar searchContent={searchContent} setSearchContent={setSearchContent} />
+                <SearchBar
+                    searchContent={searchContent}
+                    setSearchContent={setSearchContent}
+                />
 
-                <select onChange={(e) => SetSort(e.target.value)}>
-                    <option value="A-Z">A-Z</option>
-                    <option value="Newest">Newest</option>
-                    <option value="Oldest">Oldest</option>
-                </select>
+                <CourseSortSelect setSort={setSort} />
 
                 <p className={pageStyles.description}>
                     Join a course with your teacher’s join code, then open your
@@ -178,38 +176,34 @@ export function StudentDashboardPage() {
                     {!isLoadingCourses &&
                         !loadErrorMessage &&
                         filteredCourses.length === 0 &&
-                        courses.length > 0 &&
-                        (
+                        courses.length > 0 && (
                             <div className={styles.emptyState}>
                                 <h3>No courses found</h3>
-                                <p>
-                                    search for something else
-                                </p>
+                                <p>search for something else</p>
                             </div>
                         )}
 
                     {!isLoadingCourses &&
                         !loadErrorMessage &&
-                        courses.length === 0 &&
-                        (
+                        courses.length === 0 && (
                             <div className={styles.emptyState}>
                                 <h3>No courses found</h3>
-                                <p>
-                                    sign up for your first course
-                                </p>
+                                <p>sign up for your first course</p>
                             </div>
                         )}
 
-                    {!isLoadingCourses && courses.length > 0 && (
-                        <div className={styles.courseList}>
-                            {filteredCourses.map((course) => (
-                                <StudentCourseCard
-                                    key={course.id}
-                                    course={course}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {!isLoadingCourses &&
+                        !loadErrorMessage &&
+                        courses.length > 0 && (
+                            <div className={styles.courseList}>
+                                {filteredCourses.map((course) => (
+                                    <StudentCourseCard
+                                        key={course.id}
+                                        course={course}
+                                    />
+                                ))}
+                            </div>
+                        )}
                 </div>
             </section>
         </main>

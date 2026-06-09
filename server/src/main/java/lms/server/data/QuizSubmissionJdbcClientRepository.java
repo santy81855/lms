@@ -14,6 +14,12 @@ import java.util.Optional;
 @Repository
 public class QuizSubmissionJdbcClientRepository implements QuizSubmissionRepository {
 
+    private static final String SELECT = """
+            SELECT id, quiz_id, student_id, attempt_number, status,
+                   score, max_score, started_at, submitted_at, graded_at
+            FROM quiz_submissions
+            """;
+
     private final JdbcClient jdbcClient;
 
     public QuizSubmissionJdbcClientRepository(JdbcClient jdbcClient) {
@@ -22,10 +28,7 @@ public class QuizSubmissionJdbcClientRepository implements QuizSubmissionReposit
 
     @Override
     public Optional<QuizSubmission> findById(Long id) {
-        final String sql = """
-                SELECT id, quiz_id, student_id, attempt_number, status,
-                       score, max_score, started_at, submitted_at, graded_at
-                FROM quiz_submissions
+        final String sql = SELECT + """
                 WHERE id = ?;
                 """;
 
@@ -37,10 +40,7 @@ public class QuizSubmissionJdbcClientRepository implements QuizSubmissionReposit
 
     @Override
     public List<QuizSubmission> findByQuizIdAndStudentId(Long quizId, Long studentId) {
-        final String sql = """
-                SELECT id, quiz_id, student_id, attempt_number, status,
-                       score, max_score, started_at, submitted_at, graded_at
-                FROM quiz_submissions
+        final String sql = SELECT + """
                 WHERE quiz_id = ?
                   AND student_id = ?
                 ORDER BY attempt_number;
@@ -55,10 +55,7 @@ public class QuizSubmissionJdbcClientRepository implements QuizSubmissionReposit
 
     @Override
     public Optional<QuizSubmission> findLatestByQuizIdAndStudentId(Long quizId, Long studentId) {
-        final String sql = """
-                SELECT id, quiz_id, student_id, attempt_number, status,
-                       score, max_score, started_at, submitted_at, graded_at
-                FROM quiz_submissions
+        final String sql = SELECT + """
                 WHERE quiz_id = ?
                   AND student_id = ?
                 ORDER BY attempt_number DESC
@@ -126,5 +123,18 @@ public class QuizSubmissionJdbcClientRepository implements QuizSubmissionReposit
         submission.setId(keyHolder.getKey().longValue());
 
         return submission;
+    }
+
+    @Override
+    public List<QuizSubmission> findByQuizId(Long quizId) {
+        final String sql = SELECT + """
+            WHERE quiz_id = ?
+            ORDER BY student_id, attempt_number;
+            """;
+
+        return jdbcClient.sql(sql)
+                .param(quizId)
+                .query(new QuizSubmissionMapper())
+                .list();
     }
 }

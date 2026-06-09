@@ -4,16 +4,21 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lms.server.data.QuizAnswerOptionRepository;
 import lms.server.data.QuizQuestionRepository;
+import lms.server.data.QuizSubmissionRepository;
+import lms.server.data.UserRepository;
+import lms.server.models.User;
+import lms.server.models.dtos.QuizSubmissionResponse;
+import lms.server.models.dtos.QuizSubmissionsResponse;
 import lms.server.models.Quiz;
 import lms.server.models.QuizAnswerOption;
 import lms.server.models.QuizQuestion;
+import lms.server.models.QuizSubmission;
+import lms.server.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizAuthoringService {
@@ -22,15 +27,56 @@ public class QuizAuthoringService {
     private final QuizQuestionRepository quizQuestionRepository;
     private final QuizAnswerOptionRepository quizAnswerOptionRepository;
     private final Validator validator;
+    private final QuizSubmissionRepository quizSubmissionRepository;
+    private final UserRepository userRepository;
 
     public QuizAuthoringService(ModuleContentService moduleContentService,
                                 QuizQuestionRepository quizQuestionRepository,
                                 QuizAnswerOptionRepository quizAnswerOptionRepository,
+                                QuizSubmissionRepository quizSubmissionRepository,
+                                UserRepository userRepository,
                                 Validator validator) {
         this.moduleContentService = moduleContentService;
         this.quizQuestionRepository = quizQuestionRepository;
         this.quizAnswerOptionRepository = quizAnswerOptionRepository;
+        this.quizSubmissionRepository = quizSubmissionRepository;
+        this.userRepository = userRepository;
         this.validator = validator;
+    }
+
+    public Result<QuizSubmissionsResponse> findSubmissionsByQuizId(Long quizId, Long teacherId) {
+        Result<QuizSubmissionsResponse> result = new Result<>();
+
+        if (!requireId(quizId, "Quiz id is required.", result)
+                || !requireId(teacherId, "Teacher id is required.", result)) {
+            return result;
+        }
+
+        if (!moduleContentService.teacherOwnsQuiz(quizId, teacherId)) {
+            result.addMessage("Quiz not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        List<QuizSubmission> quizSubmissions = quizSubmissionRepository.findByQuizId(quizId);
+
+        List<Long> studentIds = quizSubmissions.stream()
+                .map(QuizSubmission::getStudentId)
+                .distinct()
+                .toList();
+
+        Map<Long, User> studentsById = userRepository.findByIds(studentIds)
+                .stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        List<QuizSubmissionResponse> submissions = quizSubmissions.stream()
+                .map(submission -> {
+                    User student = studentsById.get(submission.getStudentId());
+                    return new QuizSubmissionResponse(submission, student);
+                })
+                .toList();
+
+        result.setPayload(new QuizSubmissionsResponse(submissions));
+        return result;
     }
 
     public Result<List<QuizQuestion>> findQuestionsByQuizId(Long quizId, Long teacherId) {
@@ -89,6 +135,7 @@ public class QuizAuthoringService {
         newQuestion.setQuestionOrder(questionOrder);
         newQuestion.setPoints(question.getPoints());
         newQuestion.setExplanation(trimToNull(question.getExplanation()));
+        newQuestion.setAssociatedLessonId(normalizeAssociatedLessonId(question.getAssociatedLessonId()));
 
         validate(newQuestion, result);
 
@@ -142,6 +189,7 @@ public class QuizAuthoringService {
         updatedQuestion.setQuestionOrder(questionOrder);
         updatedQuestion.setPoints(question.getPoints());
         updatedQuestion.setExplanation(trimToNull(question.getExplanation()));
+        updatedQuestion.setAssociatedLessonId(normalizeAssociatedLessonId(question.getAssociatedLessonId()));
 
         validate(updatedQuestion, result);
 
@@ -605,6 +653,14 @@ public class QuizAuthoringService {
                         throw new IllegalStateException("Could not shift quiz answer option orders backward.");
                     }
                 });
+    }
+
+    private Long normalizeAssociatedLessonId(Long associatedLessonId) {
+        if (associatedLessonId == null || associatedLessonId == 0) {
+            return null;
+        }
+
+        return associatedLessonId;
     }
 
     private <T> void validate(T model, Result<?> result) {

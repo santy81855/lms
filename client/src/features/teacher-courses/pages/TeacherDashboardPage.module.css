@@ -61,6 +61,16 @@
     font-size: var(--font-size-small);
 }
 
+.summaryRow {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.summaryRowItem {
+    display: inline-block;
+}
+
 @media (min-width: 768px) {
     .header {
         flex-direction: row;

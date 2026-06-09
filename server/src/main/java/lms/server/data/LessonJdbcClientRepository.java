@@ -15,6 +15,12 @@ import java.util.Optional;
 @Repository
 public class LessonJdbcClientRepository implements LessonRepository {
 
+    private static final String SELECT = """
+            SELECT id, module_id, title, content, lesson_order,
+                estimated_minutes, status, created_at, updated_at, published_at
+            FROM lessons
+            """;
+
     private final JdbcClient jdbcClient;
 
     public LessonJdbcClientRepository(JdbcClient jdbcClient) {
@@ -23,10 +29,7 @@ public class LessonJdbcClientRepository implements LessonRepository {
 
     @Override
     public Optional<Lesson> findById(Long id) {
-        final String sql = """
-                SELECT id, module_id, title, content, lesson_order,
-                       estimated_minutes, status, created_at, updated_at, published_at
-                FROM lessons
+        final String sql = SELECT + """
                 WHERE id = ?;
                 """;
 
@@ -38,10 +41,7 @@ public class LessonJdbcClientRepository implements LessonRepository {
 
     @Override
     public Optional<Lesson> findByIdAndModuleId(Long lessonId, Long moduleId) {
-        final String sql = """
-                SELECT id, module_id, title, content, lesson_order,
-                       estimated_minutes, status, created_at, updated_at, published_at
-                FROM lessons
+        final String sql = SELECT + """
                 WHERE id = ?
                   AND module_id = ?;
                 """;
@@ -55,16 +55,32 @@ public class LessonJdbcClientRepository implements LessonRepository {
 
     @Override
     public List<Lesson> findByModuleId(Long moduleId) {
-        final String sql = """
-                SELECT id, module_id, title, content, lesson_order,
-                       estimated_minutes, status, created_at, updated_at, published_at
-                FROM lessons
+        final String sql = SELECT + """
                 WHERE module_id = ?
                 ORDER BY lesson_order;
                 """;
 
         return jdbcClient.sql(sql)
                 .param(moduleId)
+                .query(new LessonMapper())
+                .list();
+    }
+
+    @Override
+    public List<Lesson> findPublishedByCourseId(Long courseId) {
+        final String sql = """
+            SELECT l.id, l.module_id, l.title, l.content, l.lesson_order,
+                   l.estimated_minutes, l.status, l.created_at, l.updated_at, l.published_at
+            FROM lessons l
+            INNER JOIN course_modules m ON l.module_id = m.id
+            WHERE m.course_id = ?
+              AND m.status = 'PUBLISHED'
+              AND l.status = 'PUBLISHED'
+            ORDER BY m.module_order, l.lesson_order;
+            """;
+
+        return jdbcClient.sql(sql)
+                .param(courseId)
                 .query(new LessonMapper())
                 .list();
     }

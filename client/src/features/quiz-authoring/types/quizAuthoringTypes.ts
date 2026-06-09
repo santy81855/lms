@@ -10,6 +10,7 @@ export type QuizQuestion = {
     explanation: string | null;
     createdAt: string | null;
     updatedAt: string | null;
+    associatedLessonId: number;
 };
 
 export type QuizAnswerOption = {
@@ -28,6 +29,7 @@ export type QuizQuestionFormData = {
     questionOrder?: number | null;
     points: number;
     explanation: string;
+    associatedLessonId: number;
 };
 
 export type QuizAnswerOptionFormData = {

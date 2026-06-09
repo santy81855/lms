@@ -41,6 +41,9 @@ public class Quiz {
     @NotNull(message = "Quiz status is required.")
     private VisibilityStatus status;
 
+    private Long feedbackTypeId;
+    private String feedbackTypeCode;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime publishedAt;

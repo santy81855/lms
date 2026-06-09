@@ -140,6 +140,10 @@
     font-weight: 700;
 }
 
+.submissionsTable {
+    text-align: left;
+}
+
 @media (min-width: 768px) {
     .header,
     .sectionHeader {

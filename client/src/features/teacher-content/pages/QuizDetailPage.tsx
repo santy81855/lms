@@ -15,8 +15,9 @@ import {
     getModuleQuizzes,
     publishQuiz,
     returnQuizToDraft,
+    getQuizSubmissions,
 } from "../api/teacherContentApi";
-import type { Quiz } from "../types/contentTypes";
+import type { Quiz, QuizSubmission } from "../types/contentTypes";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./QuizDetailPage.module.css";
@@ -42,6 +43,8 @@ export function QuizDetailPage() {
     const [actionMessage, setActionMessage] = useState("");
     const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
     const [isRunningAction, setIsRunningAction] = useState(false);
+    const [viewSubmissions, setViewSubmissions] = useState(false);
+    const [quizSubmissions, setQuizSubmissions] = useState<QuizSubmission[]>([]);
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -88,6 +91,23 @@ export function QuizDetailPage() {
             shouldIgnore = true;
         };
     }, [isValidRoute, parsedModuleId, parsedQuizId]);
+
+    useEffect(() => {
+        if(!isValidRoute || !quiz?.id){
+            return;
+        }
+        // RETURN HERE TO COMPLETE
+        Promise.all([getQuizSubmissions(quiz.id)])
+            .then(([result]) => {
+                setQuizSubmissions(result.submissions);
+                
+            }).catch((error: unknown) => {
+                console.error(error);
+            });
+
+   
+    }, 
+    [quiz?.publishedAt]);
 
     async function reloadQuiz() {
         const [moduleQuizzes, quizQuestions] = await Promise.all([
@@ -320,6 +340,18 @@ export function QuizDetailPage() {
                             <h2>Quiz actions</h2>
 
                             <div className={styles.actions}>
+                                
+                                {isRunningAction || quiz.status !== "PUBLISHED" ? <></> : 
+                                <button 
+                                    aria-disabled={isRunningAction || quiz.status !== "PUBLISHED" || questions.length === 0}
+                                    onClick={() => setViewSubmissions(!viewSubmissions)}
+                                    className={styles.secondaryButton}
+                                    >
+                                View Submissions
+                                </button>                                
+                                }
+
+
                                 <Link
                                     className={styles.secondaryButton}
                                     to={`/teacher/courses/${parsedCourseId}/modules/${parsedModuleId}/quizzes/${quiz.id}/edit`}
@@ -388,6 +420,32 @@ export function QuizDetailPage() {
                                 </button>
                             </div>
                         </div>
+
+                        {viewSubmissions ? 
+                            <div className={styles.actionCard}>
+                                <h2>Quiz submissions</h2>
+                                <table className={styles.submissionTable}>
+                                    <thead >
+                                        <tr >
+                                            <th className={styles.submissionsTable}>Student</th>
+                                            <th className={styles.submissionsTable}>Score</th>
+                                            <th className={styles.submissionsTable}>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {quizSubmissions.map(submission => {
+                                        return (
+                                            <tr key={submission.id}>
+                                                <td>{submission.student_name}</td>
+                                                <td>{submission.score}</td>
+                                                <td>{submission.submitted_at.split("T")[0]}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    </tbody>
+                                </table>
+                            </div> 
+                        : <></>}
                     </>
                 )}
             </section>

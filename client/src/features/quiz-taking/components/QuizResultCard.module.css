@@ -48,6 +48,19 @@
     font-weight: 700;
 }
 
+.titleContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.date {
+    font-size: var(--font-size-small);
+    text-align: right;
+    color: rgb(141, 141, 141);
+}
+
 @media (min-width: 768px) {
     .card {
         padding: var(--padding-large);
