@@ -41,7 +41,7 @@ export function getStudentQuiz(quizId: number) {
         createdAt: null,
         updatedAt: null,
         publishedAt: null,
-        feedbackTypeCode: "lessonReference"
+        feedbackTypeCode: "aiOverview"
     }
     return new Promise<Quiz>((resolve, reject) => {
         resolve(mockQuiz);

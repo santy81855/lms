@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import type { QuizQuestionFeedback } from "../types/quizTakingTypes";
-import styles from "./LessonReferenceFeedback.module.css"
+import styles from "./QuizFeedbackCard.module.css"
 
 type LessonReferenceFeedbackProps = {
     content: QuizQuestionFeedback;

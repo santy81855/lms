@@ -65,14 +65,14 @@ export function getQuizFeedback(resultId: number){
     const questionFeedback : QuizQuestionFeedback = {
         questionNumber: 1,
         questionText: "This is the question",
-        feedback: "This is the feedback"
+        feedback: "This is the feedback for an AI Overview"
     };
     const secondQuestionFeedback : QuizQuestionFeedback = {  
         questionNumber: 2,
-        questionText: "What does a compiler do?",
+        questionText: "This is a question on a quiz with lesson references.",
         feedback: "http://localhost:5173/student/courses/16/quizzes/22/result"
     };
-    quizFeedbackMock.type = "lessonReference";
+    quizFeedbackMock.type = "aiOverview";
     quizFeedbackMock.quiz.title = "Quiz 1";
     quizFeedbackMock.score = 7;
     quizFeedbackMock.maxScore = 10;
