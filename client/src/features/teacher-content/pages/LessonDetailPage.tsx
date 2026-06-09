@@ -16,6 +16,8 @@ import type { Lesson } from "../types/contentTypes";
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./LessonDetailPage.module.css";
 
+import { RecentlyUpdatedBadge } from "@/components/common/RecentlyUpdatedBadge";
+
 export function LessonDetailPage() {
     const navigate = useNavigate();
     const { courseId, moduleId, lessonId } = useParams();
@@ -230,6 +232,12 @@ export function LessonDetailPage() {
                                     <dt>Published at</dt>
                                     <dd>
                                         {lesson.publishedAt ?? "Not published"}
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dd>
+                                        <RecentlyUpdatedBadge updatedAt={lesson.updatedAt} />
                                     </dd>
                                 </div>
                             </dl>

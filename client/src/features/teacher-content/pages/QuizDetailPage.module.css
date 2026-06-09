@@ -145,6 +145,7 @@
 }
 
 @media (min-width: 768px) {
+
     .header,
     .sectionHeader {
         flex-direction: row;
