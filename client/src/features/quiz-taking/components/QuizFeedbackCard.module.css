@@ -1,17 +1,17 @@
 .feedback {
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 0.5rem;
+    padding-top: var(--padding-small);
+    padding: var(--padding-small);
+    border-radius: var(--border-radius-small);
     background-color: #f0f0f0;
 }
 
 .question {
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    padding-bottom: var(--padding-small);
 }
 
 .response {
-    margin-bottom: 0.5rem;
-    margin-right: 0.5rem;
+    padding-bottom: var(--padding-small);
+    padding-right: var(--padding-small);
     display: flex;
 }
