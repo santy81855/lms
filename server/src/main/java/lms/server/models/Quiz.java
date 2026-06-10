@@ -156,6 +156,46 @@ public class Quiz {
         return Math.max(getAttemptsAllowedOrDefault() - attemptsUsed, 0);
     }
 
+    public Long getFeedbackTypeId() {
+        return feedbackTypeId;
+    }
+
+    public void setFeedbackTypeId(Long feedbackTypeId) {
+        this.feedbackTypeId = feedbackTypeId;
+    }
+
+    public String getFeedbackTypeCode() {
+        return feedbackTypeCode;
+    }
+
+    public void setFeedbackTypeCode(String feedbackTypeCode) {
+        this.feedbackTypeCode = feedbackTypeCode;
+    }
+
+    public String getFeedbackTypeCodeOrDefault() {
+        if (feedbackTypeCode == null || feedbackTypeCode.isBlank()) {
+            return FeedbackTypeCodes.SCORE;
+        }
+
+        return feedbackTypeCode;
+    }
+
+    public boolean usesLessonReferenceFeedback() {
+        return FeedbackTypeCodes.LESSON_REFERENCE.equals(getFeedbackTypeCodeOrDefault());
+    }
+
+    public boolean usesAiOverviewFeedback() {
+        return FeedbackTypeCodes.AI_OVERVIEW.equals(getFeedbackTypeCodeOrDefault());
+    }
+
+    public boolean usesScoreFeedback() {
+        return FeedbackTypeCodes.SCORE.equals(getFeedbackTypeCodeOrDefault());
+    }
+
+    public boolean usesNoFeedback() {
+        return FeedbackTypeCodes.NO_FEEDBACK.equals(getFeedbackTypeCodeOrDefault());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

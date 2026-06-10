@@ -1,15 +1,25 @@
 package lms.server.models.dtos;
 
+import lms.server.models.QuizQuestion;
+
 public class QuizSubmissionFeedbackItem {
 
     private Integer questionNumber;
     private String questionContents;
-    private String feedback;
+    private Long associatedLessonId;
 
-    public QuizSubmissionFeedbackItem(Integer questionNumber, String questionContents, String feedback) {
+    public QuizSubmissionFeedbackItem(Integer questionNumber, String questionContents, Long associatedLessonId) {
         this.questionNumber = questionNumber;
         this.questionContents = questionContents;
-        this.feedback = feedback;
+        this.associatedLessonId = associatedLessonId;
+    }
+
+    public static QuizSubmissionFeedbackItem lessonReferenceFrom(QuizQuestion question) {
+        return new QuizSubmissionFeedbackItem(
+                question.getQuestionOrder(),
+                question.getQuestionText(),
+                question.getAssociatedLessonId()
+        );
     }
 
     public Integer getQuestionNumber() {
@@ -20,7 +30,7 @@ public class QuizSubmissionFeedbackItem {
         return questionContents;
     }
 
-    public String getFeedback() {
-        return feedback;
+    public Long getAssociatedLessonId() {
+        return associatedLessonId;
     }
 }

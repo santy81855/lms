@@ -25,12 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class StudentQuizService {
@@ -390,19 +385,54 @@ public class StudentQuizService {
 
         Quiz quiz = quizResult.getPayload();
 
-        QuizSubmission submission = quizSubmissionRepository.findById(submissionId)
-                .orElse(null);
+        Optional<QuizSubmission> submissionResult =
+                quizSubmissionRepository.findById(submissionId);
 
-        if (submission == null
-                || !submission.getQuizId().equals(quizId)
+        if (submissionResult.isEmpty()) {
+            result.addMessage("Quiz submission not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        QuizSubmission submission = submissionResult.get();
+
+        if (!submission.getQuizId().equals(quizId)
                 || !submission.getStudentId().equals(studentId)) {
             result.addMessage("Quiz submission not found.", ResultType.NOT_FOUND);
             return result;
         }
 
-        QuizSubmissionFeedbackResponse response = QuizSubmissionFeedbackResponse.from(quiz, submission);
+        if (quiz.usesNoFeedback()) {
+            result.setPayload(QuizSubmissionFeedbackResponse.noFeedback(quiz));
+            return result;
+        }
 
-        result.setPayload(response);
+        if (quiz.usesScoreFeedback()) {
+            result.setPayload(QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission));
+            return result;
+        }
+
+        if (quiz.usesLessonReferenceFeedback()) {
+            List<QuizSubmissionAnswer> submissionAnswers =
+                    quizSubmissionAnswerRepository.findBySubmissionId(submissionId);
+
+            List<QuizQuestion> questions =
+                    quizQuestionRepository.findByQuizId(quizId);
+
+            result.setPayload(QuizSubmissionFeedbackResponse.lessonReference(
+                    quiz,
+                    submission,
+                    submissionAnswers,
+                    questions
+            ));
+            return result;
+        }
+
+        if (quiz.usesAiOverviewFeedback()) {
+            result.setPayload(QuizSubmissionFeedbackResponse.aiOverviewPlaceholder(quiz, submission));
+            return result;
+        }
+
+        result.setPayload(QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission));
         return result;
     }
 }
