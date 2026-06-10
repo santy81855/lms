@@ -2,17 +2,10 @@ package lms.server.domain;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import lms.server.data.QuizAnswerOptionRepository;
-import lms.server.data.QuizQuestionRepository;
-import lms.server.data.QuizSubmissionRepository;
-import lms.server.data.UserRepository;
-import lms.server.models.User;
+import lms.server.data.*;
+import lms.server.models.*;
 import lms.server.models.dtos.QuizSubmissionResponse;
 import lms.server.models.dtos.QuizSubmissionsResponse;
-import lms.server.models.Quiz;
-import lms.server.models.QuizAnswerOption;
-import lms.server.models.QuizQuestion;
-import lms.server.models.QuizSubmission;
 import lms.server.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,19 +22,21 @@ public class QuizAuthoringService {
     private final Validator validator;
     private final QuizSubmissionRepository quizSubmissionRepository;
     private final UserRepository userRepository;
+    private final QuizSubmissionAnswerRepository quizSubmissionAnswerRepository;
 
     public QuizAuthoringService(ModuleContentService moduleContentService,
                                 QuizQuestionRepository quizQuestionRepository,
                                 QuizAnswerOptionRepository quizAnswerOptionRepository,
                                 QuizSubmissionRepository quizSubmissionRepository,
                                 UserRepository userRepository,
-                                Validator validator) {
+                                Validator validator, QuizSubmissionAnswerRepository quizSubmissionAnswerRepository) {
         this.moduleContentService = moduleContentService;
         this.quizQuestionRepository = quizQuestionRepository;
         this.quizAnswerOptionRepository = quizAnswerOptionRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
         this.userRepository = userRepository;
         this.validator = validator;
+        this.quizSubmissionAnswerRepository = quizSubmissionAnswerRepository;
     }
 
     public Result<QuizSubmissionsResponse> findSubmissionsByQuizId(Long quizId, Long teacherId) {
@@ -687,5 +682,92 @@ public class QuizAuthoringService {
 
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    @Transactional
+    public Result<Void> gradeQuizSubmissionAnswer(Long answerId,
+                                                  Double points,
+                                                  Boolean isCorrect,
+                                                  Long teacherId) {
+
+        Result<Void> result = new Result<>();
+
+        if (!requireId(answerId, "Answer id is required.", result)
+                || !requireId(teacherId, "Teacher id is required.", result)) {
+            return result;
+        }
+
+        Optional<QuizSubmissionAnswer> existing =
+                quizSubmissionAnswerRepository.findById(answerId);
+
+        if (existing.isEmpty()) {
+            result.addMessage("Answer not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        QuizSubmissionAnswer answer = existing.get();
+
+        QuizQuestion question =
+                quizQuestionRepository.findById(answer.getQuestionId()).orElse(null);
+
+        if (question == null ||
+                question.getQuestionType() != QuestionType.SHORT_ANSWER) {
+            result.addMessage("Only short answer questions require manual grading.", ResultType.INVALID);
+            return result;
+        }
+
+        if (!moduleContentService.teacherOwnsQuiz(question.getQuizId(), teacherId)) {
+            result.addMessage("Quiz not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        double safePoints = points == null ? 0.0 : points;
+        boolean safeCorrect = Boolean.TRUE.equals(isCorrect);
+
+        boolean updated = quizSubmissionAnswerRepository.updateGrade(
+                answerId,
+                safePoints,
+                safeCorrect,
+                teacherId
+        );
+
+        if (!updated) {
+            result.addMessage("Answer not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        quizSubmissionRepository.recalculateScore(answer.getQuizSubmissionId());
+
+        return result;
+    }
+
+    public Result<List<QuizSubmissionAnswer>> findPendingGrading(Long quizId,
+                                                                 Long teacherId) {
+
+        Result<List<QuizSubmissionAnswer>> result = new Result<>();
+
+        if (!requireId(quizId, "Quiz id is required.", result)
+                || !requireId(teacherId, "Teacher id is required.", result)) {
+            return result;
+        }
+
+        if (!moduleContentService.teacherOwnsQuiz(quizId, teacherId)) {
+            result.addMessage("Quiz not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        boolean hasShortAnswer = quizQuestionRepository.findByQuizId(quizId).stream()
+                .anyMatch(q -> q.getQuestionType() == QuestionType.SHORT_ANSWER);
+
+        if (!hasShortAnswer) {
+            result.addMessage("This quiz has no short answer questions.", ResultType.INVALID);
+            return result;
+        }
+
+        result.setPayload(
+                quizSubmissionAnswerRepository.findUngradedShortAnswers(quizId)
+        );
+
+        return result;
     }
 }

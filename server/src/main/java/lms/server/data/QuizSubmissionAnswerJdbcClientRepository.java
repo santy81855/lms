@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class QuizSubmissionAnswerJdbcClientRepository implements QuizSubmissionAnswerRepository {
@@ -67,5 +68,83 @@ public class QuizSubmissionAnswerJdbcClientRepository implements QuizSubmissionA
         answer.setId(keyHolder.getKey().longValue());
 
         return answer;
+    }
+
+    @Override
+    public boolean updateGrade(Long answerId,
+                               Double pointsEarned,
+                               Boolean isCorrect,
+                               Long gradedBy) {
+
+        final String sql = """
+                UPDATE quiz_submission_answers
+                SET points_earned = ?,
+                    is_correct = ?,
+                    is_graded = TRUE,
+                    graded_at = NOW(),
+                    graded_by = ?
+                WHERE id = ?;
+                """;
+
+        return jdbcClient.sql(sql)
+                .param(pointsEarned != null ? pointsEarned : 0.0)
+                .param(Boolean.TRUE.equals(isCorrect))
+                .param(gradedBy)
+                .param(answerId)
+                .update() > 0;
+    }
+
+    @Override
+    public List<QuizSubmissionAnswer> findUngradedShortAnswers(Long quizId) {
+
+        final String sql = """
+                SELECT qsa.id,
+                       qsa.quiz_submission_id,
+                       qsa.question_id,
+                       qsa.selected_option_id,
+                       qsa.short_answer_text,
+                       qsa.is_correct,
+                       qsa.points_earned,
+                       qsa.is_graded,
+                       qsa.graded_at,
+                       qsa.graded_by,
+                       qsa.created_at
+                FROM quiz_submission_answers qsa
+                JOIN quiz_questions qq ON qq.id = qsa.question_id
+                WHERE qq.quiz_id = ?
+                  AND qq.question_type = 'SHORT_ANSWER'
+                  AND qsa.is_graded = FALSE
+                ORDER BY qsa.created_at;
+                """;
+
+        return jdbcClient.sql(sql)
+                .param(quizId)
+                .query(new QuizSubmissionAnswerMapper())
+                .list();
+    }
+
+    @Override
+    public Optional<QuizSubmissionAnswer> findById(Long id) {
+
+        final String sql = """
+                SELECT id,
+                       quiz_submission_id,
+                       question_id,
+                       selected_option_id,
+                       short_answer_text,
+                       is_correct,
+                       points_earned,
+                       is_graded,
+                       graded_at,
+                       graded_by,
+                       created_at
+                FROM quiz_submission_answers
+                WHERE id = ?;
+                """;
+
+        return jdbcClient.sql(sql)
+                .param(id)
+                .query(new QuizSubmissionAnswerMapper())
+                .optional();
     }
 }

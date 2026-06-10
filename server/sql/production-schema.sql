@@ -1070,3 +1070,6 @@ CREATE TABLE IF NOT EXISTS activity_logs
 )
     ON DELETE SET NULL
     );
+
+    ALTER TABLE quiz_submission_answers
+ADD COLUMN is_graded BOOLEAN NOT NULL DEFAULT FALSE;
