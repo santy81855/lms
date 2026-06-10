@@ -14,6 +14,8 @@ import lms.server.models.Lesson;
 import lms.server.models.Quiz;
 import lms.server.models.VisibilityStatus;
 import lms.server.models.dtos.ModuleContentItem;
+import lms.server.models.dtos.CourseLessonSummaryResponse;
+import lms.server.models.dtos.CourseLessonsResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +46,25 @@ public class StudentContentService {
         this.assignmentRepository = assignmentRepository;
         this.quizRepository = quizRepository;
         this.studentCourseService = studentCourseService;
+    }
+
+    public Result<CourseLessonsResponse> findLessonsByCourseId(Long courseId, Long studentId) {
+        Result<CourseLessonsResponse> result = new Result<>();
+
+        Result<Course> courseResult = findAccessibleCourse(courseId, studentId);
+
+        if (!courseResult.isSuccess()) {
+            copyErrors(courseResult, result);
+            return result;
+        }
+
+        List<CourseLessonSummaryResponse> lessons = lessonRepository.findPublishedByCourseId(courseId)
+                .stream()
+                .map(CourseLessonSummaryResponse::new)
+                .toList();
+
+        result.setPayload(new CourseLessonsResponse(lessons));
+        return result;
     }
 
     public Result<Course> findCourseByIdForStudent(Long courseId, Long studentId) {

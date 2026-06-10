@@ -3,6 +3,11 @@ import { Link } from "react-router";
 import type { ModuleContentItem } from "@/features/teacher-content";
 
 import styles from "./StudentContentItemCard.module.css";
+import type { QuizAttemptStatus } from "../types/studentContentTypes";
+import { defaultQuizAttemptRemaining } from "../types/studentContentTypes";
+import { useEffect, useState } from "react";
+import { getAttemptsRemaining } from "@/features/quiz-taking";
+import { isApiError } from "@/api";
 
 type StudentContentItemCardProps = {
     courseId: number;
@@ -31,9 +36,37 @@ export function StudentContentItemCard({
 }: StudentContentItemCardProps) {
     const itemTypeLabel = formatItemType(item.itemType);
     const itemPath = getStudentItemPath(courseId, item);
+    const [quizAttemptsRemaining, setQuizAttemptsRemaining] = useState<QuizAttemptStatus>(defaultQuizAttemptRemaining);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(true);
+    const [errors, setErrors] = useState("");
+
+    useEffect(() => {
+        if(item.itemType !== "QUIZ"){
+            return;
+        }
+
+        getAttemptsRemaining(item.id)
+            .then(attempts => {
+                setQuizAttemptsRemaining(attempts);
+            }
+        ).catch((error: unknown) => {
+            if(isApiError(error)){
+                setErrors(error.message);
+            } else{
+                setErrors("Something went wrong while fetching data for this quiz");
+            }
+        }).finally(() => {            
+            setIsLoadingDetails(false);
+        })
+    }, []);
 
     return (
         <article className={styles.card}>
+            { errors && 
+                <div>
+                    <p className={styles.errorText}>{errors}</p>
+                </div>}
+
             <div>
                 <p className={styles.meta}>
                     {itemTypeLabel} {item.itemOrder}
@@ -51,6 +84,12 @@ export function StudentContentItemCard({
                     {itemTypeLabel} is skipped for the MVP.
                 </p>
             )}
+            {item.itemType === "QUIZ" 
+                && !errors
+                && !isLoadingDetails 
+                && <p className={styles.mutedText}>
+                    attempts made: {quizAttemptsRemaining.attemptsUsed} / {quizAttemptsRemaining.attemptsAllowed}
+                </p>}
         </article>
     );
 }

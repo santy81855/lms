@@ -144,26 +144,16 @@ public class Quiz {
         this.publishedAt = publishedAt;
     }
 
-    public Long getFeedbackTypeId() {
-        return feedbackTypeId;
+    public int getAttemptsAllowedOrDefault() {
+        return attemptsAllowed == null ? 1 : attemptsAllowed;
     }
 
-    public void setFeedbackTypeId(Long feedbackTypeId) {
-        this.feedbackTypeId = feedbackTypeId;
+    public boolean canTakeWithAttemptsUsed(int attemptsUsed) {
+        return attemptsUsed < getAttemptsAllowedOrDefault();
     }
 
-    public String getFeedbackTypeCode() {
-        return feedbackTypeCode;
-    }
-
-    public void setFeedbackTypeCode(String feedbackTypeCode) {
-        this.feedbackTypeCode = feedbackTypeCode;
-    }
-
-    public String getFeedbackTypeCodeOrDefault() {
-        return feedbackTypeCode == null || feedbackTypeCode.isBlank()
-                ? "SCORE"
-                : feedbackTypeCode;
+    public int getAttemptsRemaining(int attemptsUsed) {
+        return Math.max(getAttemptsAllowedOrDefault() - attemptsUsed, 0);
     }
 
     @Override

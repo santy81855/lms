@@ -24,4 +24,6 @@ public interface LessonRepository {
     boolean deleteById(Long id);
 
     boolean deleteByIdAndModuleId(Long lessonId, Long moduleId);
+
+    List<Lesson> findPublishedByCourseId(Long courseId);
 }

@@ -17,6 +17,7 @@ import lms.server.models.dtos.StudentQuizQuestionResponse;
 import lms.server.models.dtos.StudentQuizResponse;
 import lms.server.models.dtos.StudentQuizResultResponse;
 import lms.server.models.dtos.StudentQuizSubmitRequest;
+import lms.server.models.dtos.StudentQuizAttemptStatusResponse;
 import lms.server.models.QuizFeedbackType;
 import lms.server.models.dtos.QuizSubmissionFeedbackResponse;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,25 @@ public class StudentQuizService {
         this.quizAnswerOptionRepository = quizAnswerOptionRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
         this.quizSubmissionAnswerRepository = quizSubmissionAnswerRepository;
+    }
+
+    public Result<StudentQuizAttemptStatusResponse> findAttemptStatus(Long quizId, Long studentId) {
+        Result<StudentQuizAttemptStatusResponse> result = new Result<>();
+
+        Result<Quiz> quizResult = studentContentService.findQuizById(quizId, studentId);
+
+        if (!quizResult.isSuccess()) {
+            copyErrors(quizResult, result);
+            return result;
+        }
+
+        Quiz quiz = quizResult.getPayload();
+
+        int attemptsUsed = quizSubmissionRepository.countByQuizIdAndStudentId(quizId, studentId);
+
+        result.setPayload(StudentQuizAttemptStatusResponse.from(quiz, attemptsUsed));
+
+        return result;
     }
 
     public Result<StudentQuizResponse> findQuizForTaking(Long quizId, Long studentId) {

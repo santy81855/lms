@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { isApiError } from "@/api";
 
 import {
+    getAttemptsRemaining,
     getStudentQuizForTaking,
     submitStudentQuiz,
 } from "../api/quizTakingApi";
@@ -46,10 +47,19 @@ export function TakeQuizPage() {
 
         let shouldIgnore = false;
 
-        getStudentQuizForTaking(parsedQuizId)
-            .then((studentQuiz) => {
+        Promise.all([
+            getStudentQuizForTaking(parsedQuizId),
+            getAttemptsRemaining(parsedQuizId)
+        ])
+            .then(([studentQuiz,attempts]) => {
+                if(attempts.attemptsRemaining <= 0){
+                    setErrorMessage("You may not retake this quiz");
+                    setIsLoadingQuiz(false);
+                    return;
+                }
                 if (!shouldIgnore) {
                     setQuiz(studentQuiz);
+                    setIsLoadingQuiz(false);
                 }
             })
             .catch((error: unknown) => {

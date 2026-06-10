@@ -30,3 +30,8 @@
     color: rgb(var(--accent-color-rgb));
     font-weight: 700;
 }
+
+.errorText {
+    color: red;
+    font-size: var(--font-size-small);
+}

@@ -8,6 +8,7 @@ import type {
     StudentQuizResult,
     StudentQuizSubmitRequest,
 } from "../types/quizTakingTypes";
+import { defaultQuizAttemptRemaining, type QuizAttemptStatus } from "@/features/student-content";
 
 export function getStudentQuizForTaking(quizId: number) {
     return apiClient<StudentQuiz>(`/api/student/quizzes/${quizId}/take`);
@@ -40,4 +41,8 @@ export function getAllStudentQuizResults(quizId: number) {
 
 export function getQuizFeedback(resultId: number){
     return apiClient<QuizFeedback>(`/quizzes/${resultId}/submissions/{submissionId}/feedback`);
+}
+
+export function getAttemptsRemaining(quizId: number){
+    return apiClient<QuizAttemptStatus>(`/api/quizzes/${quizId}/attempt-status`);
 }
