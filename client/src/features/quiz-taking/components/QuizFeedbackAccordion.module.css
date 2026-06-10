@@ -5,17 +5,14 @@
 }
 
 details {
-  border: 1px solid #ddd;
-  border-radius: var(--border-radius-small);
-  padding-bottom: var(--padding-small);
+  border-radius: var(--border-radius-xsmall);
+  margin-bottom: var(--margin-small);
   overflow: hidden;
 }
 
 /* Header/Clickable area */
 summary {
-  padding: 12px;
-  background-color: #f7f7f7;
-  cursor: pointer;
+  padding: var(--padding-xsmall);
   font-weight: bold;
   list-style: none; /* Removes standard arrow in Chrome/Firefox */
 }
@@ -37,7 +34,6 @@ details[open] summary::before {
 
 /* Content wrapper padding */
 .content {
-  padding: 12px;
-  border-top: 1px solid #ddd;
-  background-color: #fff;
+  padding: var(--padding-medium);
+  border-top: 1px solid var(--border-color-rgb);
 }

@@ -1,17 +1,16 @@
 .feedback {
-    padding-top: var(--padding-small);
+    margin-top: var(--margin-medium);
     padding: var(--padding-small);
-    border-radius: var(--border-radius-small);
-    background-color: #f0f0f0;
+    border-radius: var(--border-radius-xsmall);
 }
 
 .question {
     font-weight: bold;
-    padding-bottom: var(--padding-small);
+    margin-bottom: var(--margin-medium);
 }
 
 .response {
-    padding-bottom: var(--padding-small);
-    padding-right: var(--padding-small);
+    margin-bottom: var(--margin-medium);
+    margin-right: var(--margin-medium);
     display: flex;
 }
