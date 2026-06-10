@@ -11,7 +11,7 @@ const defaultValues: QuizFormData = {
     maxPoints: 10,
     timeLimitMinutes: null,
     attemptsAllowed: 1,
-    feedbackType: "score",
+    feedbackTypeCode: "score",
 };
 
 type feedbackTooltip = {key: string, tooltip: string, dropdownText: string};
@@ -60,7 +60,7 @@ export function QuizForm({
                     ? null
                     : Number(timeLimitMinutes),
             attemptsAllowed: Number(attemptsAllowed),
-            feedbackType: feedbackType,
+            feedbackTypeCode: feedbackType,
         });
     }
 
