@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test_coverage": "vitest run --doverage"
+    "test_coverage": "vitest run --coverage"
   },
   "dependencies": {
     "date-fns": "^4.4.0",

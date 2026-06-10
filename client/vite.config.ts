@@ -13,6 +13,6 @@ export default defineConfig({
   test: {
     globals: true,             // Enables global functions like 'describe' and 'test' without importing them
     environment: 'jsdom',      // Tells Vitest to use the browser-like environment
-    setupFiles: './src/SetupTests.ts', // Runs before your tests to configure matchers
+    setupFiles: './src/setupTests.ts', // Runs before your tests to configure matchers
   },
 });
