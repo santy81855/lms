@@ -4,13 +4,7 @@ import lms.server.data.QuizAnswerOptionRepository;
 import lms.server.data.QuizQuestionRepository;
 import lms.server.data.QuizSubmissionAnswerRepository;
 import lms.server.data.QuizSubmissionRepository;
-import lms.server.models.QuestionType;
-import lms.server.models.Quiz;
-import lms.server.models.QuizAnswerOption;
-import lms.server.models.QuizQuestion;
-import lms.server.models.QuizSubmission;
-import lms.server.models.QuizSubmissionAnswer;
-import lms.server.models.QuizSubmissionStatus;
+import lms.server.models.*;
 import lms.server.models.dtos.StudentQuizAnswerRequest;
 import lms.server.models.dtos.StudentQuizOptionResponse;
 import lms.server.models.dtos.StudentQuizQuestionResponse;
@@ -18,7 +12,6 @@ import lms.server.models.dtos.StudentQuizResponse;
 import lms.server.models.dtos.StudentQuizResultResponse;
 import lms.server.models.dtos.StudentQuizSubmitRequest;
 import lms.server.models.dtos.StudentQuizAttemptStatusResponse;
-import lms.server.models.QuizFeedbackType;
 import lms.server.models.dtos.QuizSubmissionFeedbackResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -401,38 +394,36 @@ public class StudentQuizService {
             return result;
         }
 
-        if (quiz.usesNoFeedback()) {
-            result.setPayload(QuizSubmissionFeedbackResponse.noFeedback(quiz));
-            return result;
-        }
+        QuizSubmissionFeedbackResponse response = switch (quiz.getFeedbackTypeCodeOrDefault()) {
+            case FeedbackTypeCodes.NO_FEEDBACK ->
+                    QuizSubmissionFeedbackResponse.noFeedback(quiz);
 
-        if (quiz.usesScoreFeedback()) {
-            result.setPayload(QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission));
-            return result;
-        }
+            case FeedbackTypeCodes.SCORE ->
+                    QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission);
 
-        if (quiz.usesLessonReferenceFeedback()) {
-            List<QuizSubmissionAnswer> submissionAnswers =
-                    quizSubmissionAnswerRepository.findBySubmissionId(submissionId);
+            case FeedbackTypeCodes.LESSON_REFERENCE -> {
+                List<QuizSubmissionAnswer> submissionAnswers =
+                        quizSubmissionAnswerRepository.findBySubmissionId(submissionId);
 
-            List<QuizQuestion> questions =
-                    quizQuestionRepository.findByQuizId(quizId);
+                List<QuizQuestion> questions =
+                        quizQuestionRepository.findByQuizId(quizId);
 
-            result.setPayload(QuizSubmissionFeedbackResponse.lessonReference(
-                    quiz,
-                    submission,
-                    submissionAnswers,
-                    questions
-            ));
-            return result;
-        }
+                yield QuizSubmissionFeedbackResponse.lessonReference(
+                        quiz,
+                        submission,
+                        submissionAnswers,
+                        questions
+                );
+            }
 
-        if (quiz.usesAiOverviewFeedback()) {
-            result.setPayload(QuizSubmissionFeedbackResponse.aiOverviewPlaceholder(quiz, submission));
-            return result;
-        }
+            case FeedbackTypeCodes.AI_OVERVIEW ->
+                    QuizSubmissionFeedbackResponse.aiOverviewPlaceholder(quiz, submission);
 
-        result.setPayload(QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission));
+            default ->
+                    QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission);
+        };
+
+        result.setPayload(response);
         return result;
     }
 }

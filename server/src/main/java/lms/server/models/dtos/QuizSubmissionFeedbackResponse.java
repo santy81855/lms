@@ -3,6 +3,7 @@ package lms.server.models.dtos;
 import lms.server.models.*;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -56,8 +57,8 @@ public class QuizSubmissionFeedbackResponse {
                 .filter(answer -> !Boolean.TRUE.equals(answer.getCorrect()))
                 .map(answer -> questionsById.get(answer.getQuestionId()))
                 .filter(question -> question != null)
-                .sorted((left, right) -> left.getQuestionOrder().compareTo(right.getQuestionOrder()))
-                .map(QuizSubmissionFeedbackItem::lessonReferenceFrom)
+                .sorted(Comparator.comparing(QuizQuestion::getQuestionOrder))
+                .map(QuizSubmissionFeedbackItem::fromQuizQuestion)
                 .toList();
 
         return new QuizSubmissionFeedbackResponse(
@@ -78,6 +79,35 @@ public class QuizSubmissionFeedbackResponse {
                 List.of()
         );
     }
+
+    /**
+     * Builds the quiz feedback response for the quiz's configured feedback type.
+     *
+     * Required arguments depend on the quiz feedback type:
+     *
+     * <ul>
+     *     <li>{@code NO_FEEDBACK}: requires {@code quiz}. {@code submission},
+     *     {@code submissionAnswers}, and {@code questions} are ignored.</li>
+     *
+     *     <li>{@code SCORE}: requires {@code quiz} and {@code submission}.
+     *     {@code submissionAnswers} and {@code questions} are ignored.</li>
+     *
+     *     <li>{@code LESSON_REFERENCE}: requires {@code quiz}, {@code submission},
+     *     {@code submissionAnswers}, and {@code questions}. Wrong submission answers
+     *     are matched to their quiz questions so the response can include each
+     *     question's associated lesson id.</li>
+     *
+     *     <li>{@code AI_OVERVIEW}: requires {@code quiz} and {@code submission}.
+     *     {@code submissionAnswers} and {@code questions}. Currently non-functional
+     *     until AI feedback logic is implemented.</li>
+     * </ul>
+     *
+     * @param quiz the quiz whose feedback type determines the response shape
+     * @param submission the student's quiz submission; required for score-based feedback
+     * @param submissionAnswers the submitted answers; required only for lesson-reference feedback
+     * @param questions the quiz questions; required only for lesson-reference feedback
+     * @return a feedback response matching the quiz's configured feedback type
+     */
 
     public static QuizSubmissionFeedbackResponse from(Quiz quiz, QuizSubmission submission, List<QuizSubmissionAnswer> submissionAnswers, List<QuizQuestion> questions) {
         return switch (quiz.getFeedbackTypeCodeOrDefault()) {

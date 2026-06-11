@@ -14,7 +14,7 @@ public class QuizSubmissionFeedbackItem {
         this.associatedLessonId = associatedLessonId;
     }
 
-    public static QuizSubmissionFeedbackItem lessonReferenceFrom(QuizQuestion question) {
+    public static QuizSubmissionFeedbackItem fromQuizQuestion(QuizQuestion question) {
         return new QuizSubmissionFeedbackItem(
                 question.getQuestionOrder(),
                 question.getQuestionText(),
