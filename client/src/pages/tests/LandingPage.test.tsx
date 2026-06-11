@@ -33,7 +33,7 @@ describe('LandingPage', () => {
             expect(screen.getByRole('link', { name: 'Create account' })).toBeInTheDocument();
         });
 
-        it('shows get started and login links in hero', () => {
+        it('shows get started and login links', () => {
             renderLandingPage();
             expect(screen.getByRole('link', { name: 'Get started' })).toBeInTheDocument();
             expect(screen.getByRole('link', { name: 'I already have an account' })).toBeInTheDocument();
