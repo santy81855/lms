@@ -99,3 +99,19 @@ export type QuizSubmission = {
 export type QuizSubmissionContainer = {
     submissions: QuizSubmission[];
 };
+export interface QuizSubmissionAnswer {
+  id: number;
+
+  quizSubmissionId: number;
+  questionId: number;
+
+  shortAnswerText: string;
+
+  studentName: string;
+  questionText: string;
+
+  pointsEarned: number;
+  maxPoints: number;
+
+  correct: boolean;
+}

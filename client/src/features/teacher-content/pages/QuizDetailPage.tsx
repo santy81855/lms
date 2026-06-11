@@ -17,7 +17,7 @@ import {
     returnQuizToDraft,
     getQuizSubmissions,
 } from "../api/teacherContentApi";
-import type { Quiz, QuizSubmission } from "../types/contentTypes";
+import type { Quiz, QuizSubmission, QuizSubmissionAnswer } from "../types/contentTypes";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./QuizDetailPage.module.css";
@@ -47,6 +47,82 @@ export function QuizDetailPage() {
     const [isRunningAction, setIsRunningAction] = useState(false);
     const [viewSubmissions, setViewSubmissions] = useState(false);
     const [quizSubmissions, setQuizSubmissions] = useState<QuizSubmission[]>([]);
+    const [pendingGrading, setPendingGrading] = useState<QuizSubmissionAnswer[]>([]);
+
+    const fetchPendingGrading = async (quizId: number) => {
+        try {
+            const res = await fetch(`/api/quizzes/${quizId}/pending-grading`, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const contentType = res.headers.get("content-type");
+
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("API ERROR:", text);
+                return [];
+            }
+
+            if (!contentType?.includes("application/json")) {
+                const text = await res.text();
+                console.error("NOT JSON:", text);
+                return [];
+            }
+
+            return await res.json();
+        } catch (err) {
+            console.error("Fetch failed:", err);
+            return [];
+        }
+    };
+
+    const updatePendingAnswer = (id: number, field: string, value: any) => {
+        setPendingGrading(prev =>
+            prev.map(a =>
+                a.id === id ? { ...a, [field]: value } : a
+            )
+        );
+    };
+
+    async function handleGradeAnswer(answer: QuizSubmissionAnswer) {
+        try {
+            const safePoints = answer.pointsEarned ?? 0;
+            const safeCorrect = answer.correct ?? false;
+
+            const res = await fetch(
+                `/api/quizzes/grade-answer/${answer.id}?points=${safePoints}&isCorrect=${safeCorrect}`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error("Failed to grade answer");
+            }
+
+            setPendingGrading((prev) =>
+                prev.filter((a) => a.id !== answer.id)
+            );
+        } catch (err) {
+            console.error("Failed to grade answer", err);
+            alert("Failed to grade answer");
+        }
+    }
+
+    useEffect(() => {
+        if (!isValidRoute || !viewSubmissions) return;
+
+        fetchPendingGrading(parsedQuizId)
+            .then((data) => {
+                setPendingGrading(Array.isArray(data) ? data : []);
+            })
+            .catch(console.error);
+
+    }, [parsedQuizId, viewSubmissions, isValidRoute]);
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -453,6 +529,60 @@ export function QuizDetailPage() {
                                         })}
                                     </tbody>
                                 </table>
+                                {pendingGrading.length > 0 && (
+                                    <div className={styles.actionCard}>
+                                        <h2>Pending Short-Answer Grading</h2>
+                                        <table className={styles.submissionTable}>
+                                            <thead>
+                                                <tr>
+                                                    <th>Student</th>
+                                                    <th>Question</th>
+                                                    <th>Answer</th>
+                                                    <th>Points</th>
+                                                    <th>Correct?</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {pendingGrading.map((answer) => (
+                                                    <tr key={answer.id}>
+                                                        <td>{answer.studentName}</td>
+                                                        <td>{answer.questionText}</td>
+                                                        <td>{answer.shortAnswerText}</td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                defaultValue={answer.pointsEarned ?? 0}
+                                                                min={0}
+                                                                max={answer.maxPoints}
+                                                                onChange={(e) =>
+                                                                    updatePendingAnswer(answer.id, "points_earned", Number(e.target.value))
+                                                                }
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="checkbox"
+                                                                defaultChecked={answer.correct ?? false}
+                                                                onChange={(e) =>
+                                                                    updatePendingAnswer(answer.id, "is_correct", e.target.checked)
+                                                                }
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => handleGradeAnswer(answer)}
+                                                                className={styles.primaryButton}
+                                                            >
+                                                                Grade
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                             : <></>}
                     </>

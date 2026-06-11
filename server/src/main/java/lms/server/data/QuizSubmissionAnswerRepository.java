@@ -2,6 +2,7 @@ package lms.server.data;
 
 import lms.server.models.QuizSubmissionAnswer;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ public interface QuizSubmissionAnswerRepository {
     QuizSubmissionAnswer add(QuizSubmissionAnswer answer);
 
     boolean updateGrade(Long answerId,
-                        Double pointsEarned,
+                        Double points,
                         Boolean isCorrect,
                         Long gradedBy);
 
