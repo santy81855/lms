@@ -4,13 +4,7 @@ import lms.server.data.QuizAnswerOptionRepository;
 import lms.server.data.QuizQuestionRepository;
 import lms.server.data.QuizSubmissionAnswerRepository;
 import lms.server.data.QuizSubmissionRepository;
-import lms.server.models.QuestionType;
-import lms.server.models.Quiz;
-import lms.server.models.QuizAnswerOption;
-import lms.server.models.QuizQuestion;
-import lms.server.models.QuizSubmission;
-import lms.server.models.QuizSubmissionAnswer;
-import lms.server.models.QuizSubmissionStatus;
+import lms.server.models.*;
 import lms.server.models.dtos.StudentQuizAnswerRequest;
 import lms.server.models.dtos.StudentQuizOptionResponse;
 import lms.server.models.dtos.StudentQuizQuestionResponse;
@@ -18,19 +12,13 @@ import lms.server.models.dtos.StudentQuizResponse;
 import lms.server.models.dtos.StudentQuizResultResponse;
 import lms.server.models.dtos.StudentQuizSubmitRequest;
 import lms.server.models.dtos.StudentQuizAttemptStatusResponse;
-import lms.server.models.QuizFeedbackType;
 import lms.server.models.dtos.QuizSubmissionFeedbackResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class StudentQuizService {
@@ -390,17 +378,50 @@ public class StudentQuizService {
 
         Quiz quiz = quizResult.getPayload();
 
-        QuizSubmission submission = quizSubmissionRepository.findById(submissionId)
-                .orElse(null);
+        Optional<QuizSubmission> submissionResult =
+                quizSubmissionRepository.findById(submissionId);
 
-        if (submission == null
-                || !submission.getQuizId().equals(quizId)
+        if (submissionResult.isEmpty()) {
+            result.addMessage("Quiz submission not found.", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        QuizSubmission submission = submissionResult.get();
+
+        if (!submission.getQuizId().equals(quizId)
                 || !submission.getStudentId().equals(studentId)) {
             result.addMessage("Quiz submission not found.", ResultType.NOT_FOUND);
             return result;
         }
 
-        QuizSubmissionFeedbackResponse response = QuizSubmissionFeedbackResponse.from(quiz, submission);
+        QuizSubmissionFeedbackResponse response = switch (quiz.getFeedbackTypeCodeOrDefault()) {
+            case FeedbackTypeCodes.NO_FEEDBACK ->
+                    QuizSubmissionFeedbackResponse.noFeedback(quiz);
+
+            case FeedbackTypeCodes.SCORE ->
+                    QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission);
+
+            case FeedbackTypeCodes.LESSON_REFERENCE -> {
+                List<QuizSubmissionAnswer> submissionAnswers =
+                        quizSubmissionAnswerRepository.findBySubmissionId(submissionId);
+
+                List<QuizQuestion> questions =
+                        quizQuestionRepository.findByQuizId(quizId);
+
+                yield QuizSubmissionFeedbackResponse.lessonReference(
+                        quiz,
+                        submission,
+                        submissionAnswers,
+                        questions
+                );
+            }
+
+            case FeedbackTypeCodes.AI_OVERVIEW ->
+                    QuizSubmissionFeedbackResponse.aiOverviewPlaceholder(quiz, submission);
+
+            default ->
+                    QuizSubmissionFeedbackResponse.scoreOnly(quiz, submission);
+        };
 
         result.setPayload(response);
         return result;
