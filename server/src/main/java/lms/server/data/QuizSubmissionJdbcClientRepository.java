@@ -137,4 +137,23 @@ public class QuizSubmissionJdbcClientRepository implements QuizSubmissionReposit
                 .query(new QuizSubmissionMapper())
                 .list();
     }
+
+    @Override
+    public void recalculateScore(Long submissionId) {
+
+        final String sql = """
+                UPDATE quiz_submissions qs
+                SET score = (
+                    SELECT COALESCE(SUM(points_earned), 0)
+                    FROM quiz_submission_answers qsa
+                    WHERE qsa.quiz_submission_id = qs.id
+                ),
+                graded_at = NOW()
+                WHERE qs.id = ?;
+                """;
+
+        jdbcClient.sql(sql)
+                .param(submissionId)
+                .update();
+    }
 }

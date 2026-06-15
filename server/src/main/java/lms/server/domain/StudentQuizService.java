@@ -124,16 +124,46 @@ public class StudentQuizService {
         List<QuizSubmissionAnswer> answersToSave = new ArrayList<>();
 
         for (QuizQuestion question : questions) {
-            if (question.getQuestionType() == QuestionType.SHORT_ANSWER) {
-                result.addMessage("Short answer questions are not supported for auto-graded quizzes yet.", ResultType.INVALID);
-                return result;
-            }
-
             StudentQuizAnswerRequest submittedAnswer = answerMap.get(question.getId());
 
             if (submittedAnswer == null) {
                 result.addMessage("Every question must be answered.", ResultType.INVALID);
                 return result;
+            }
+
+            if (question.getQuestionType() == QuestionType.SHORT_ANSWER) {
+
+                if (submittedAnswer.getShortAnswerText() == null ||
+                        submittedAnswer.getShortAnswerText().isBlank()) {
+
+                    result.addMessage(
+                            "Short answer text is required.",
+                            ResultType.INVALID
+                    );
+                    return result;
+                }
+
+                QuizSubmissionAnswer answer = new QuizSubmissionAnswer();
+
+                answer.setQuestionId(question.getId());
+                answer.setSelectedOptionId(null);
+
+                answer.setShortAnswerText(
+                        submittedAnswer.getShortAnswerText()
+                );
+
+                answer.setCorrect(null);
+                answer.setPointsEarned(null);
+
+                answersToSave.add(answer);
+
+                maxScore = maxScore.add(
+                        question.getPoints() == null
+                                ? BigDecimal.ZERO
+                                : question.getPoints()
+                );
+
+                continue;
             }
 
             if (submittedAnswer.getSelectedOptionId() == null) {
@@ -172,11 +202,21 @@ public class StudentQuizService {
         submission.setQuizId(quizId);
         submission.setStudentId(studentId);
         submission.setAttemptNumber(attemptsUsed + 1);
-        submission.setStatus(QuizSubmissionStatus.GRADED);
         submission.setScore(totalScore);
         submission.setMaxScore(maxScore);
         submission.setStartedAt(LocalDateTime.now());
-        submission.setGradedAt(LocalDateTime.now());
+        boolean hasShortAnswers = questions.stream()
+                .anyMatch(q -> q.getQuestionType() == QuestionType.SHORT_ANSWER);
+
+        submission.setStatus(
+                hasShortAnswers
+                        ? QuizSubmissionStatus.SUBMITTED
+                        : QuizSubmissionStatus.GRADED
+        );
+
+        if (!hasShortAnswers) {
+            submission.setGradedAt(LocalDateTime.now());
+        }
 
         QuizSubmission savedSubmission = quizSubmissionRepository.add(submission);
 

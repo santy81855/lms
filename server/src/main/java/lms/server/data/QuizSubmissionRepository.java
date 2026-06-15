@@ -18,4 +18,6 @@ public interface QuizSubmissionRepository {
     QuizSubmission add(QuizSubmission submission);
 
     List<QuizSubmission> findByQuizId(Long quizId);
+
+    void recalculateScore(Long submissionId);
 }

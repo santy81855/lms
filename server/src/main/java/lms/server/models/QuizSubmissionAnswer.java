@@ -27,6 +27,22 @@ public class QuizSubmissionAnswer {
 
     private LocalDateTime createdAt;
 
+    private String studentName;
+    private String questionText;
+    private BigDecimal maxPoints;
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public String getQuestionText() {
+        return questionText;
+    }
+
+    public BigDecimal getMaxPoints() {
+        return maxPoints;
+    }
+
     public Long getId() {
         return id;
     }
@@ -93,33 +109,14 @@ public class QuizSubmissionAnswer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         QuizSubmissionAnswer that = (QuizSubmissionAnswer) o;
-
-        return Objects.equals(id, that.id)
-                && Objects.equals(quizSubmissionId, that.quizSubmissionId)
-                && Objects.equals(questionId, that.questionId)
-                && Objects.equals(selectedOptionId, that.selectedOptionId)
-                && Objects.equals(shortAnswerText, that.shortAnswerText)
-                && Objects.equals(correct, that.correct)
-                && Objects.equals(pointsEarned, that.pointsEarned)
-                && Objects.equals(createdAt, that.createdAt);
+        return Objects.equals(id, that.id) && Objects.equals(quizSubmissionId, that.quizSubmissionId) && Objects.equals(questionId, that.questionId) && Objects.equals(selectedOptionId, that.selectedOptionId) && Objects.equals(shortAnswerText, that.shortAnswerText) && Objects.equals(correct, that.correct) && Objects.equals(pointsEarned, that.pointsEarned) && Objects.equals(createdAt, that.createdAt) && Objects.equals(studentName, that.studentName) && Objects.equals(questionText, that.questionText) && Objects.equals(maxPoints, that.maxPoints);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                id,
-                quizSubmissionId,
-                questionId,
-                selectedOptionId,
-                shortAnswerText,
-                correct,
-                pointsEarned,
-                createdAt
-        );
+        return Objects.hash(id, quizSubmissionId, questionId, selectedOptionId, shortAnswerText, correct, pointsEarned, createdAt, studentName, questionText, maxPoints);
     }
 
     @Override
@@ -133,6 +130,21 @@ public class QuizSubmissionAnswer {
                 ", correct=" + correct +
                 ", pointsEarned=" + pointsEarned +
                 ", createdAt=" + createdAt +
+                ", studentName='" + studentName + '\'' +
+                ", questionText='" + questionText + '\'' +
+                ", maxPoints=" + maxPoints +
                 '}';
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public void setQuestionText(String questionText) {
+        this.questionText = questionText;
+    }
+
+    public void setMaxPoints(BigDecimal maxPoints) {
+        this.maxPoints = maxPoints;
     }
 }
