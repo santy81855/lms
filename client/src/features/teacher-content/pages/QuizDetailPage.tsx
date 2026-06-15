@@ -556,7 +556,7 @@ export function QuizDetailPage() {
                                                                 min={0}
                                                                 max={answer.maxPoints}
                                                                 onChange={(e) =>
-                                                                    updatePendingAnswer(answer.id, "points_earned", Number(e.target.value))
+                                                                    updatePendingAnswer(answer.id, "pointsEarned", Number(e.target.value))
                                                                 }
                                                             />
                                                         </td>
@@ -565,7 +565,7 @@ export function QuizDetailPage() {
                                                                 type="checkbox"
                                                                 defaultChecked={answer.correct ?? false}
                                                                 onChange={(e) =>
-                                                                    updatePendingAnswer(answer.id, "is_correct", e.target.checked)
+                                                                    updatePendingAnswer(answer.id, "correct", e.target.checked)
                                                                 }
                                                             />
                                                         </td>

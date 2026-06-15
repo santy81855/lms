@@ -121,7 +121,8 @@ public class QuizSubmissionAnswerJdbcClientRepository implements QuizSubmissionA
                     JOIN quiz_submissions qs ON qs.id = qsa.quiz_submission_id
                     JOIN users u ON u.id = qs.student_id
                     JOIN quiz_questions qq ON qq.id = qsa.question_id
-                    WHERE qq.quiz_id = ? AND qsa.is_graded = 0
+                    WHERE qq.quiz_id = ?
+                      AND qq.question_type = 'SHORT_ANSWER'
                       AND qsa.is_graded = FALSE
                     ORDER BY qsa.created_at;
                 """;
