@@ -1,3 +1,5 @@
+import type { Quiz } from "@/features/teacher-content";
+
 export type StudentQuestionType =
     | "MULTIPLE_CHOICE"
     | "TRUE_FALSE"
@@ -50,3 +52,17 @@ export type StudentQuizResult = {
     maxScore: number;
     submittedAt?: string | Date;
 };
+
+export type QuizQuestionFeedback = {
+    questionNumber: number;
+    questionText: string;
+    feedback: string;
+}
+
+export type QuizFeedback = {
+    type: string;
+    quiz: Quiz;
+    score: number;
+    maxScore: number;
+    content : QuizQuestionFeedback[];
+}

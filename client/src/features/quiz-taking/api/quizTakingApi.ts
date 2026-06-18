@@ -2,6 +2,8 @@ import { apiClient } from "@/api";
 import type { Result } from "@/types/api";
 
 import type {
+    QuizFeedback,
+    QuizQuestionFeedback,
     StudentQuiz,
     StudentQuizResult,
     StudentQuizSubmitRequest,
@@ -37,20 +39,10 @@ export function getAllStudentQuizResults(quizId: number) {
     );
 }
 
+export function getQuizFeedback(resultId: number){
+    return apiClient<QuizFeedback>(`/quizzes/${resultId}/submissions/{submissionId}/feedback`);
+}
+
 export function getAttemptsRemaining(quizId: number){
-    // mocking backend response until the API endpoint is merged in
-    // remove this when merged
-    return new Promise<QuizAttemptStatus>((resolve, reject) => {
-        const quizAttempts : QuizAttemptStatus = {
-            quizId: 0,
-            attemptsAllowed: 2,
-            attemptsUsed: 1,
-            attemptsRemaining: 1,
-            canTake: true
-        };
-        
-        resolve(quizAttempts);
-    })
-    // TODO: uncomment the following code when the API endpoint is merged
-    // return apiClient<QuizAttemptStatus>(`/api/quizzes/${quizId}/attempt-status`);
+    return apiClient<QuizAttemptStatus>(`/api/quizzes/${quizId}/attempt-status`);
 }

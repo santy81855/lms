@@ -1,0 +1,16 @@
+.feedback {
+    margin-top: var(--margin-medium);
+    padding: var(--padding-small);
+    border-radius: var(--border-radius-xsmall);
+}
+
+.question {
+    font-weight: bold;
+    margin-bottom: var(--margin-medium);
+}
+
+.response {
+    margin-bottom: var(--margin-medium);
+    margin-right: var(--margin-medium);
+    display: flex;
+}

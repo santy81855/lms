@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import { useLocation } from "react-router";
 
 import { isApiError } from "@/api";
 
-import { getAllStudentQuizResults } from "../api/quizTakingApi";
+import { getAllStudentQuizResults, getStudentQuizForTaking } from "../api/quizTakingApi";
 import { QuizResultCard } from "../components/QuizResultCard";
 import type { StudentQuizResult } from "../types/quizTakingTypes";
 
 import pageStyles from "@/pages/Page.module.css";
 import styles from "./QuizResultPage.module.css";
+import type { Quiz } from "@/features/teacher-content";
+import { getStudentQuiz } from "@/features/student-content";
 
 export function QuizResultPage() {
     const { courseId, quizId } = useParams();
@@ -23,6 +26,7 @@ export function QuizResultPage() {
     const [results, setResults] = useState<StudentQuizResult[] | null>(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingResult, setIsLoadingResult] = useState(true);
+    const [quizMetadata, setQuizMetadata] = useState<Quiz | null>(null);
 
     useEffect(() => {
         if (!isValidRoute) {
@@ -30,7 +34,19 @@ export function QuizResultPage() {
         }
 
         let shouldIgnore = false;
+        
+        // metadata that represents every quiz result as a group
+        getStudentQuiz(parsedQuizId)
+            .then((quiz) => setQuizMetadata(quiz))
+            .catch((error: unknown) => {
+                if (isApiError(error)) {
+                    setErrorMessage(error.message);
+                } else{
+                    setErrorMessage("Something went wrong while fetching data about the quiz results")
+                }
+            })
 
+        // data and metadata that represents individual quiz results
         getAllStudentQuizResults(parsedQuizId)
             .then((response) => {
                 if (!shouldIgnore) {
@@ -55,6 +71,8 @@ export function QuizResultPage() {
                     setIsLoadingResult(false);
                 }
             });
+        
+
 
         return () => {
             shouldIgnore = true;
@@ -100,7 +118,7 @@ export function QuizResultPage() {
                 {isValidRoute &&
                     !isLoadingResult &&
                     results &&
-                    results.map((res) => <QuizResultCard result={res} />)}
+                    results.map((res) => <QuizResultCard result={res} quizMetaData={quizMetadata} key={res.submissionId}/>)}
             </section>
         </main>
     );

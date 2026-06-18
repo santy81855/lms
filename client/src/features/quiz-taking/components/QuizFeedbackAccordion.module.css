@@ -1,0 +1,39 @@
+/* Container styles */
+.accordion-group {
+  max-width: 600px;
+  font-family: sans-serif;
+}
+
+details {
+  border-radius: var(--border-radius-xsmall);
+  margin-bottom: var(--margin-small);
+  overflow: hidden;
+}
+
+/* Header/Clickable area */
+summary {
+  padding: var(--padding-xsmall);
+  font-weight: bold;
+  list-style: none; /* Removes standard arrow in Chrome/Firefox */
+}
+
+summary::-webkit-details-marker {
+  display: none; /* Removes standard arrow in Safari */
+}
+
+/* Custom indicator element */
+summary::before {
+  content: "▶ ";
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+details[open] summary::before {
+  transform: rotate(90deg); /* Rotates the custom arrow when open */
+}
+
+/* Content wrapper padding */
+.content {
+  padding: var(--padding-medium);
+  border-top: 1px solid var(--border-color-rgb);
+}

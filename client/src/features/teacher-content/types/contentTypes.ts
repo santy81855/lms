@@ -54,6 +54,7 @@ export type Quiz = {
     createdAt: string | null;
     updatedAt: string | null;
     publishedAt: string | null;
+    feedbackTypeCode: string;
 };
 
 export type LessonFormData = {
@@ -79,7 +80,7 @@ export type QuizFormData = {
     maxPoints: number;
     timeLimitMinutes?: number | null;
     attemptsAllowed: number;
-    feedbackType: string;
+    feedbackTypeCode: string;
 };
 
 export type QuizSubmission = {
